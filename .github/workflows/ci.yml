@@ -1,0 +1,48 @@
+name: Reproduce and check
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  reproduce:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Score the latest month
+        run: python3 pipeline.py
+      - name: Back-test and 12 leakage checks
+        run: python3 test_backtest.py
+      - name: Benchmarks, lead/lag, horizons, inference
+        run: |
+          python3 benchmarks.py
+          python3 leadlag.py
+          python3 horizons.py
+          python3 inference.py
+      - name: Pre-registered border test and onset evaluation
+        run: |
+          python3 border_test.py
+          python3 onset_eval.py
+      - name: Vintage-audit framework checks
+        run: python3 test_vintage_audit.py
+      - name: Data manifest hashes still match the committed data
+        run: |
+          python3 - <<'EOF'
+          import hashlib, json
+          m = json.load(open("data/MANIFEST.json"))
+          bad = [f["file"] for f in m["files"]
+                 if hashlib.sha256(open(f["file"], "rb").read()).hexdigest() != f["sha256"]]
+          if bad:
+              raise SystemExit("MANIFEST hash mismatch (rerun make_manifest.py): " + ", ".join(bad))
+          print("manifest OK:", len(m["files"]), "files")
+          EOF
+      - name: Build the dashboard
+        run: |
+          python3 make_technote.py
+          python3 build.py
+          python3 make_brief.py > /dev/null

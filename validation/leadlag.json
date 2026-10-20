@@ -1,0 +1,526 @@
+{
+ "question": "Does cross-border activity lead El Paso employment growth by 3-6 months?",
+ "method": "Pearson r between border indicator at t and EP nonfarm YoY growth at t+k, k=0..12",
+ "results": {
+  "US imports from Mexico, YoY %": {
+   "by_lead": [
+    {
+     "lead": 0,
+     "r": 0.527,
+     "n": 308
+    },
+    {
+     "lead": 1,
+     "r": 0.476,
+     "n": 307
+    },
+    {
+     "lead": 2,
+     "r": 0.408,
+     "n": 306
+    },
+    {
+     "lead": 3,
+     "r": 0.398,
+     "n": 305
+    },
+    {
+     "lead": 4,
+     "r": 0.386,
+     "n": 304
+    },
+    {
+     "lead": 5,
+     "r": 0.375,
+     "n": 303
+    },
+    {
+     "lead": 6,
+     "r": 0.389,
+     "n": 302
+    },
+    {
+     "lead": 7,
+     "r": 0.371,
+     "n": 301
+    },
+    {
+     "lead": 8,
+     "r": 0.32,
+     "n": 300
+    },
+    {
+     "lead": 9,
+     "r": 0.279,
+     "n": 299
+    },
+    {
+     "lead": 10,
+     "r": 0.232,
+     "n": 298
+    },
+    {
+     "lead": 11,
+     "r": 0.128,
+     "n": 297
+    },
+    {
+     "lead": 12,
+     "r": 0.059,
+     "n": 296
+    }
+   ],
+   "best_lead": 0,
+   "best_r": 0.527,
+   "r_at_0": 0.527,
+   "n": 308,
+   "sig_threshold": 0.114
+  },
+  "US exports to Mexico, YoY %": {
+   "by_lead": [
+    {
+     "lead": 0,
+     "r": 0.534,
+     "n": 308
+    },
+    {
+     "lead": 1,
+     "r": 0.495,
+     "n": 307
+    },
+    {
+     "lead": 2,
+     "r": 0.459,
+     "n": 306
+    },
+    {
+     "lead": 3,
+     "r": 0.445,
+     "n": 305
+    },
+    {
+     "lead": 4,
+     "r": 0.426,
+     "n": 304
+    },
+    {
+     "lead": 5,
+     "r": 0.413,
+     "n": 303
+    },
+    {
+     "lead": 6,
+     "r": 0.413,
+     "n": 302
+    },
+    {
+     "lead": 7,
+     "r": 0.38,
+     "n": 301
+    },
+    {
+     "lead": 8,
+     "r": 0.322,
+     "n": 300
+    },
+    {
+     "lead": 9,
+     "r": 0.287,
+     "n": 299
+    },
+    {
+     "lead": 10,
+     "r": 0.238,
+     "n": 298
+    },
+    {
+     "lead": 11,
+     "r": 0.157,
+     "n": 297
+    },
+    {
+     "lead": 12,
+     "r": 0.109,
+     "n": 296
+    }
+   ],
+   "best_lead": 0,
+   "best_r": 0.534,
+   "r_at_0": 0.534,
+   "n": 308,
+   "sig_threshold": 0.114
+  },
+  "Peso depreciation, 6-mo %": {
+   "by_lead": [
+    {
+     "lead": 0,
+     "r": 0.144,
+     "n": 308
+    },
+    {
+     "lead": 1,
+     "r": 0.167,
+     "n": 308
+    },
+    {
+     "lead": 2,
+     "r": 0.158,
+     "n": 308
+    },
+    {
+     "lead": 3,
+     "r": 0.179,
+     "n": 308
+    },
+    {
+     "lead": 4,
+     "r": 0.208,
+     "n": 308
+    },
+    {
+     "lead": 5,
+     "r": 0.249,
+     "n": 308
+    },
+    {
+     "lead": 6,
+     "r": 0.288,
+     "n": 308
+    },
+    {
+     "lead": 7,
+     "r": 0.301,
+     "n": 307
+    },
+    {
+     "lead": 8,
+     "r": 0.261,
+     "n": 306
+    },
+    {
+     "lead": 9,
+     "r": 0.212,
+     "n": 305
+    },
+    {
+     "lead": 10,
+     "r": 0.168,
+     "n": 304
+    },
+    {
+     "lead": 11,
+     "r": 0.099,
+     "n": 303
+    },
+    {
+     "lead": 12,
+     "r": 0.044,
+     "n": 302
+    }
+   ],
+   "best_lead": 7,
+   "best_r": 0.301,
+   "r_at_0": 0.144,
+   "n": 307,
+   "sig_threshold": 0.114
+  },
+  "Mexico manufacturing, YoY %": {
+   "by_lead": [
+    {
+     "lead": 0,
+     "r": 0.619,
+     "n": 123
+    },
+    {
+     "lead": 1,
+     "r": 0.532,
+     "n": 123
+    },
+    {
+     "lead": 2,
+     "r": 0.415,
+     "n": 123
+    },
+    {
+     "lead": 3,
+     "r": 0.393,
+     "n": 123
+    },
+    {
+     "lead": 4,
+     "r": 0.412,
+     "n": 123
+    },
+    {
+     "lead": 5,
+     "r": 0.429,
+     "n": 123
+    },
+    {
+     "lead": 6,
+     "r": 0.459,
+     "n": 123
+    },
+    {
+     "lead": 7,
+     "r": 0.466,
+     "n": 123
+    },
+    {
+     "lead": 8,
+     "r": 0.408,
+     "n": 123
+    },
+    {
+     "lead": 9,
+     "r": 0.357,
+     "n": 123
+    },
+    {
+     "lead": 10,
+     "r": 0.31,
+     "n": 123
+    },
+    {
+     "lead": 11,
+     "r": 0.169,
+     "n": 123
+    },
+    {
+     "lead": 12,
+     "r": 0.061,
+     "n": 123
+    }
+   ],
+   "best_lead": 0,
+   "best_r": 0.619,
+   "r_at_0": 0.619,
+   "n": 123,
+   "sig_threshold": 0.18
+  },
+  "Border crossings: trucks, YoY %": {
+   "by_lead": [
+    {
+     "lead": 0,
+     "r": 0.279,
+     "n": 308
+    },
+    {
+     "lead": 1,
+     "r": 0.263,
+     "n": 308
+    },
+    {
+     "lead": 2,
+     "r": 0.258,
+     "n": 308
+    },
+    {
+     "lead": 3,
+     "r": 0.269,
+     "n": 308
+    },
+    {
+     "lead": 4,
+     "r": 0.264,
+     "n": 308
+    },
+    {
+     "lead": 5,
+     "r": 0.242,
+     "n": 308
+    },
+    {
+     "lead": 6,
+     "r": 0.251,
+     "n": 308
+    },
+    {
+     "lead": 7,
+     "r": 0.242,
+     "n": 308
+    },
+    {
+     "lead": 8,
+     "r": 0.202,
+     "n": 308
+    },
+    {
+     "lead": 9,
+     "r": 0.19,
+     "n": 308
+    },
+    {
+     "lead": 10,
+     "r": 0.155,
+     "n": 308
+    },
+    {
+     "lead": 11,
+     "r": 0.061,
+     "n": 308
+    },
+    {
+     "lead": 12,
+     "r": 0.044,
+     "n": 308
+    }
+   ],
+   "best_lead": 0,
+   "best_r": 0.279,
+   "r_at_0": 0.279,
+   "n": 308,
+   "sig_threshold": 0.114
+  },
+  "Border crossings: personal vehicles, YoY %": {
+   "by_lead": [
+    {
+     "lead": 0,
+     "r": 0.658,
+     "n": 308
+    },
+    {
+     "lead": 1,
+     "r": 0.608,
+     "n": 308
+    },
+    {
+     "lead": 2,
+     "r": 0.501,
+     "n": 308
+    },
+    {
+     "lead": 3,
+     "r": 0.441,
+     "n": 308
+    },
+    {
+     "lead": 4,
+     "r": 0.375,
+     "n": 308
+    },
+    {
+     "lead": 5,
+     "r": 0.329,
+     "n": 308
+    },
+    {
+     "lead": 6,
+     "r": 0.292,
+     "n": 308
+    },
+    {
+     "lead": 7,
+     "r": 0.271,
+     "n": 308
+    },
+    {
+     "lead": 8,
+     "r": 0.247,
+     "n": 308
+    },
+    {
+     "lead": 9,
+     "r": 0.242,
+     "n": 308
+    },
+    {
+     "lead": 10,
+     "r": 0.221,
+     "n": 308
+    },
+    {
+     "lead": 11,
+     "r": 0.172,
+     "n": 308
+    },
+    {
+     "lead": 12,
+     "r": 0.145,
+     "n": 308
+    }
+   ],
+   "best_lead": 0,
+   "best_r": 0.658,
+   "r_at_0": 0.658,
+   "n": 308,
+   "sig_threshold": 0.114
+  },
+  "Border crossings: pedestrians, YoY %": {
+   "by_lead": [
+    {
+     "lead": 0,
+     "r": 0.354,
+     "n": 298
+    },
+    {
+     "lead": 1,
+     "r": 0.351,
+     "n": 298
+    },
+    {
+     "lead": 2,
+     "r": 0.259,
+     "n": 298
+    },
+    {
+     "lead": 3,
+     "r": 0.232,
+     "n": 298
+    },
+    {
+     "lead": 4,
+     "r": 0.199,
+     "n": 298
+    },
+    {
+     "lead": 5,
+     "r": 0.168,
+     "n": 298
+    },
+    {
+     "lead": 6,
+     "r": 0.119,
+     "n": 298
+    },
+    {
+     "lead": 7,
+     "r": 0.052,
+     "n": 298
+    },
+    {
+     "lead": 8,
+     "r": -0.007,
+     "n": 298
+    },
+    {
+     "lead": 9,
+     "r": -0.015,
+     "n": 298
+    },
+    {
+     "lead": 10,
+     "r": -0.03,
+     "n": 298
+    },
+    {
+     "lead": 11,
+     "r": -0.039,
+     "n": 298
+    },
+    {
+     "lead": 12,
+     "r": -0.071,
+     "n": 298
+    }
+   ],
+   "best_lead": 0,
+   "best_r": 0.354,
+   "r_at_0": 0.354,
+   "n": 298,
+   "sig_threshold": 0.116
+  }
+ },
+ "crossings_geography": "El Paso (2402) + Ysleta (2401) from 2020-03; El Paso port alone before (it then included Ysleta)",
+ "note": "Correlation, not causation; overlapping YoY windows inflate serial correlation, so treat r values as descriptive strength-of-association, not formal tests. Crossings series: raw YoY like the trade series; crossings combine the El Paso and Ysleta ports (CBP port split 2020-03-16); 2020-21 travel restrictions dominate the YoY variance, so r values are descriptive only."
+}

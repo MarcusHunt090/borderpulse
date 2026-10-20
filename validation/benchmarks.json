@@ -1,0 +1,245 @@
+{
+ "framing": "Episode-first: alert episodes and deterioration events are the units of inference. Exact Clopper-Pearson 95% intervals shown; with this few events no rule's precision or recall is estimated precisely \u2014 counts, not rates, are the honest claims. The payroll target counts months already in a downturn; see onset_eval.json for warnings vs detections.",
+ "sample": {
+  "months": [
+   "2003-07",
+   "2026-02"
+  ],
+  "n_months": 272
+ },
+ "rules": {
+  "borderpulse_ge65": {
+   "unemployment_+0.5pp_6m": {
+    "episode": {
+     "alert_episodes": 2,
+     "true_warnings": 1,
+     "false_alarms": 1,
+     "episode_precision": 0.5,
+     "episode_precision_ci95": [
+      0.013,
+      0.987
+     ],
+     "events": 6,
+     "events_detected": 1,
+     "episode_recall": 0.167,
+     "episode_recall_ci95": [
+      0.004,
+      0.641
+     ],
+     "alert_windows": [
+      [
+       "2008-10",
+       "2009-12"
+      ],
+      [
+       "2020-04",
+       "2020-09"
+      ]
+     ],
+     "effective_note": "effective sample = 2 alert episodes / 6 events; months are NOT independent"
+    },
+    "month_level_secondary": {
+     "TP": 7,
+     "FP": 14,
+     "FN": 27,
+     "TN": 224,
+     "n": 272,
+     "recall": 0.206,
+     "precision": 0.333,
+     "false_alarm_rate": 0.059,
+     "caveat": "overlapping windows; autocorrelated; do not read as independent trials"
+    }
+   },
+   "payroll_growth_negative_6m": {
+    "episode": {
+     "alert_episodes": 2,
+     "true_warnings": 2,
+     "false_alarms": 0,
+     "episode_precision": 1.0,
+     "episode_precision_ci95": [
+      0.158,
+      1.0
+     ],
+     "events": 3,
+     "events_detected": 2,
+     "episode_recall": 0.667,
+     "episode_recall_ci95": [
+      0.094,
+      0.992
+     ],
+     "alert_windows": [
+      [
+       "2008-10",
+       "2009-12"
+      ],
+      [
+       "2020-04",
+       "2020-09"
+      ]
+     ],
+     "effective_note": "effective sample = 2 alert episodes / 3 events; months are NOT independent"
+    },
+    "month_level_secondary": {
+     "TP": 21,
+     "FP": 0,
+     "FN": 20,
+     "TN": 231,
+     "n": 272,
+     "recall": 0.512,
+     "precision": 1.0,
+     "false_alarm_rate": 0.0,
+     "caveat": "overlapping windows; autocorrelated; do not read as independent trials"
+    }
+   }
+  },
+  "local_sahm_rule": {
+   "unemployment_+0.5pp_6m": {
+    "episode": {
+     "alert_episodes": 5,
+     "true_warnings": 3,
+     "false_alarms": 2,
+     "episode_precision": 0.6,
+     "episode_precision_ci95": [
+      0.147,
+      0.947
+     ],
+     "events": 6,
+     "events_detected": 4,
+     "episode_recall": 0.667,
+     "episode_recall_ci95": [
+      0.223,
+      0.957
+     ],
+     "alert_windows": [
+      [
+       "2003-07",
+       "2003-11"
+      ],
+      [
+       "2005-03",
+       "2005-03"
+      ],
+      [
+       "2008-09",
+       "2010-05"
+      ],
+      [
+       "2010-12",
+       "2011-10"
+      ],
+      [
+       "2020-04",
+       "2021-03"
+      ]
+     ],
+     "effective_note": "effective sample = 5 alert episodes / 6 events; months are NOT independent"
+    },
+    "month_level_secondary": {
+     "TP": 12,
+     "FP": 38,
+     "FN": 22,
+     "TN": 200,
+     "n": 272,
+     "recall": 0.353,
+     "precision": 0.24,
+     "false_alarm_rate": 0.16,
+     "caveat": "overlapping windows; autocorrelated; do not read as independent trials"
+    }
+   },
+   "payroll_growth_negative_6m": {
+    "episode": {
+     "alert_episodes": 5,
+     "true_warnings": 3,
+     "false_alarms": 2,
+     "episode_precision": 0.6,
+     "episode_precision_ci95": [
+      0.147,
+      0.947
+     ],
+     "events": 3,
+     "events_detected": 3,
+     "episode_recall": 1.0,
+     "episode_recall_ci95": [
+      0.292,
+      1.0
+     ],
+     "alert_windows": [
+      [
+       "2003-07",
+       "2003-11"
+      ],
+      [
+       "2005-03",
+       "2005-03"
+      ],
+      [
+       "2008-09",
+       "2010-05"
+      ],
+      [
+       "2010-12",
+       "2011-10"
+      ],
+      [
+       "2020-04",
+       "2021-03"
+      ]
+     ],
+     "effective_note": "effective sample = 5 alert episodes / 3 events; months are NOT independent"
+    },
+    "month_level_secondary": {
+     "TP": 32,
+     "FP": 18,
+     "FN": 9,
+     "TN": 213,
+     "n": 272,
+     "recall": 0.78,
+     "precision": 0.64,
+     "false_alarm_rate": 0.078,
+     "caveat": "overlapping windows; autocorrelated; do not read as independent trials"
+    }
+   }
+  }
+ },
+ "sahm_rule_definition": "3-mo avg EP SA unemployment minus its min over the trailing 12 3-mo averages >= 0.5pp, using data through t-1",
+ "bci_benchmark_status": "unavailable \u2014 data/extra/dallas_fed_bci.csv absent (xlsx not fetchable from cloud sandbox; run refresh.py locally)",
+ "weight_sensitivity": {
+  "weights_compared": {
+   "baseline": {
+    "labor": 0.4,
+    "border": 0.35,
+    "household": 0.25
+   },
+   "alternative": {
+    "labor": 0.333,
+    "border": 0.333,
+    "household": 0.333
+   }
+  },
+  "score_correlation": 0.9928,
+  "mean_abs_score_diff": 1.2,
+  "max_abs_score_diff": 8.6,
+  "equal_weight_alert_episodes_T1": [
+   [
+    "2008-10",
+    "2009-12"
+   ],
+   [
+    "2020-04",
+    "2020-09"
+   ],
+   [
+    "2023-02",
+    "2023-04"
+   ]
+  ],
+  "same_alert_months": false
+ },
+ "interpolated_points": [
+  [
+   "ep_unrate",
+   "2025-10",
+   4.5
+  ]
+ ]
+}

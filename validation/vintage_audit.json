@@ -1,0 +1,23 @@
+{
+ "status": "pending",
+ "missing_series": [
+  "ELPA348UR",
+  "ELPA348NAN",
+  "IMPMX",
+  "EXPMX",
+  "EXMXUS",
+  "ACTLISCOU21340",
+  "MEDDAYONMAR21340"
+ ],
+ "summary_text": "Vintage files absent for ELPA348UR, ELPA348NAN, IMPMX, EXPMX, EXMXUS, ACTLISCOU21340, MEDDAYONMAR21340. Export each series from ALFRED (Download Data \u2192 all vintages) or run `python3 vintage_audit.py --fetch` with FRED_API_KEY set, then rerun. Until then all validation uses latest-vintage (revised) data.",
+ "expected_files": [
+  "data/vintages/ELPA348UR.csv",
+  "data/vintages/ELPA348NAN.csv",
+  "data/vintages/IMPMX.csv",
+  "data/vintages/EXPMX.csv",
+  "data/vintages/EXMXUS.csv",
+  "data/vintages/ACTLISCOU21340.csv",
+  "data/vintages/MEDDAYONMAR21340.csv"
+ ],
+ "generated": "2026-10-20"
+}

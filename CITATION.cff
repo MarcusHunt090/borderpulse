@@ -1,0 +1,50 @@
+cff-version: 1.2.0
+message: "If you use BorderPulse, please cite it as below."
+title: "BorderPulse: an open early-warning laboratory for the El Paso–Juárez Borderplex economy"
+version: 6.1.1
+date-released: 2026-10-20
+authors:
+  - family-names: Hunt
+    given-names: Marcus
+    email: marcusjhunt01@gmail.com
+abstract: >-
+  A transparent, reproducible composite index of economic stress for the El Paso
+  metropolitan area built from seven public monthly indicators (BLS LAUS/CES via FRED,
+  Census trade, Federal Reserve exchange rates, Realtor.com housing), with a
+  leakage-free back-test against pre-registered targets, episode-first inference with
+  exact and bootstrap intervals, placebo and robustness tests, benchmark comparison
+  against a local Sahm rule, a pre-registered onset evaluation and border-layer test,
+  and a real-time vintage-audit framework.
+keywords:
+  - regional economics
+  - early warning
+  - El Paso
+  - border economy
+  - nowcasting
+license: MIT
+repository-code: "https://github.com/MarcusHunt090/borderpulse"
+url: "https://github.com/MarcusHunt090/borderpulse"
+references:
+  - type: article
+    authors:
+      - family-names: Sahm
+        given-names: Claudia
+    title: "Direct Stimulus Payments to Individuals"
+    collection-title: "Recession Ready: Fiscal Policies to Stabilize the American Economy"
+    year: 2019
+  - type: article
+    authors:
+      - family-names: Newey
+        given-names: Whitney K.
+      - family-names: West
+        given-names: Kenneth D.
+    title: "A Simple, Positive Semi-Definite, Heteroskedasticity and Autocorrelation Consistent Covariance Matrix"
+    journal: Econometrica
+    year: 1987
+  - type: article
+    authors:
+      - family-names: Künsch
+        given-names: Hans R.
+    title: "The Jackknife and the Bootstrap for General Stationary Observations"
+    journal: Annals of Statistics
+    year: 1989

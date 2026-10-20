@@ -1,0 +1,105 @@
+{
+ "note": "Extra indicators render in the 'leading indicators watch' and community modules. They NEVER enter the validated composite score automatically — promote one into pipeline.py's SIGNALS only after re-running backtest.py shows it improves out-of-sample performance.",
+ "indicators": [
+  {
+   "file": "tx_initial_claims.csv",
+   "label": "Texas initial unemployment claims (monthly avg)",
+   "group": "leading",
+   "direction": "up_is_stress",
+   "transform": "pct3",
+   "min_n": 24,
+   "source": "FRED TXICLAIMS weekly; refresh.py aggregates to monthly. Statewide, not El Paso-specific.",
+   "status": "awaiting local refresh (weekly series too long for the cloud fetch channel)"
+  },
+  {
+   "file": "tx_business_applications.csv",
+   "label": "Texas business applications (monthly)",
+   "group": "leading",
+   "direction": "down_is_stress",
+   "transform": "yoy_pct",
+   "min_n": 24,
+   "source": "FRED BUSAPPWNSATX weekly; refresh.py aggregates to monthly. Statewide.",
+   "status": "awaiting local refresh"
+  },
+  {
+   "file": "ep_building_permits.csv",
+   "label": "El Paso building permits (monthly units)",
+   "group": "leading",
+   "direction": "down_is_stress",
+   "transform": "yoy_pct",
+   "min_n": 24,
+   "source": "Census Building Permits Survey, El Paso MSA — monthly file drop; not on FRED (county series BPPRIV048141 is annual).",
+   "status": "awaiting manual data"
+  },
+  {
+   "file": "ep_sales_tax.csv",
+   "label": "El Paso city sales-tax allocation",
+   "group": "leading",
+   "direction": "down_is_stress",
+   "transform": "yoy_pct",
+   "min_n": 24,
+   "source": "Texas Comptroller monthly allocation for City of El Paso (comptroller.texas.gov, Allocation Historical Summary).",
+   "status": "awaiting manual data"
+  },
+  {
+   "file": "ep_crossings_trucks.csv",
+   "label": "Border crossings: trucks, El Paso port only (excl. Ysleta since 2020)",
+   "group": "border",
+   "direction": "down_is_stress",
+   "transform": "yoy_pct",
+   "min_n": 24,
+   "source": "BTS Border Crossing/Entry Data (data.bts.gov, keg4-3bc2), port_name='El Paso' (2402). The 2020-03 drop is the CBP split of Ysleta (2401) into its own port, not a reporting error — the dashboard's border panel and border_test.py use El Paso + Ysleta. Watch z here is El Paso port only.",
+   "status": "loaded (BTS, 1996-01 onward)"
+  },
+  {
+   "file": "ep_crossings_pov.csv",
+   "label": "Border crossings: personal vehicles, El Paso port only (excl. Ysleta since 2020)",
+   "group": "border",
+   "direction": "down_is_stress",
+   "transform": "yoy_pct",
+   "min_n": 24,
+   "source": "BTS Border Crossing/Entry Data, port_name='El Paso' (2402) — excludes Ysleta from 2020-03 (port split); combined series used in the border panel.",
+   "status": "loaded (BTS, 1996-01 onward)"
+  },
+  {
+   "file": "ep_crossings_ped.csv",
+   "label": "Border crossings: pedestrians, El Paso port only (excl. Ysleta since 2020)",
+   "group": "border",
+   "direction": "down_is_stress",
+   "transform": "yoy_pct",
+   "min_n": 24,
+   "source": "BTS Border Crossing/Entry Data, port_name='El Paso' (2402) — excludes Ysleta from 2020-03 (port split). Single-month spikes in the source (e.g. 2025-11) are kept as published.",
+   "status": "loaded (BTS, 1996-01 onward)"
+  },
+  {
+   "file": "dallas_fed_bci.csv",
+   "label": "Dallas Fed El Paso Business-Cycle Index (benchmark)",
+   "group": "benchmark",
+   "direction": "down_is_stress",
+   "transform": "yoy_pct",
+   "min_n": 24,
+   "source": "dallasfed.org/research/econdata/coini/elpcoini — monthly xlsx; benchmark/target-definer only, NEVER a score input. Used by benchmarks.py when present.",
+   "status": "awaiting local refresh (binary xlsx not fetchable from the cloud sandbox; refresh.py downloads it locally)"
+  },
+  {
+   "file": "../mex_manufacturing.csv",
+   "label": "Mexico manufacturing production, YoY",
+   "group": "border",
+   "direction": "down_is_stress",
+   "transform": "yoy_pct",
+   "min_n": 24,
+   "source": "FRED MEXPRMNTO01IXOBM (OECD MEI) — discontinued Mar 2024; successor: INEGI IMMEX Chihuahua manufacturing employment (refresh.py fetches locally).",
+   "status": "loaded (stale: ends 2024-03)"
+  },
+  {
+   "file": "food_assistance.csv",
+   "label": "Food-assistance demand (households served)",
+   "group": "community",
+   "direction": "up_is_stress",
+   "transform": "yoy_pct",
+   "min_n": 18,
+   "source": "Partner data — e.g. El Pasoans Fighting Hunger, anonymized monthly households served or pantry visits.",
+   "status": "awaiting partner data"
+  }
+ ]
+}

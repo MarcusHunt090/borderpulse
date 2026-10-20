@@ -1,0 +1,292 @@
+{
+ "backtest_period": [
+  "2003-07",
+  "2026-02"
+ ],
+ "n_months": 272,
+ "target": "EP SA unemployment (ELPA348UR) rises >=0.5pp within 6 months",
+ "base_rate": 0.125,
+ "n_positive_months": 34,
+ "n_deterioration_events": 6,
+ "event_windows": [
+  [
+   "2004-07",
+   "2004-09"
+  ],
+  [
+   "2008-01",
+   "2009-04"
+  ],
+  [
+   "2010-04",
+   "2010-09"
+  ],
+  [
+   "2010-12",
+   "2010-12"
+  ],
+  [
+   "2019-09",
+   "2020-03"
+  ],
+  [
+   "2020-10",
+   "2020-10"
+  ]
+ ],
+ "events_detected_at_65": 1,
+ "alert_episodes": 2,
+ "true_warnings": 1,
+ "false_alarms": 1,
+ "median_lead_months": 2.0,
+ "mean_lead_months": 2.0,
+ "month_level_at_65": {
+  "TP": 7,
+  "FP": 14,
+  "FN": 27,
+  "TN": 224,
+  "recall": 0.206,
+  "specificity": 0.941,
+  "precision": 0.333,
+  "NPV": 0.892,
+  "false_alarm_rate": 0.059,
+  "F1": 0.255,
+  "balanced_accuracy": 0.574,
+  "ROC_AUC": 0.472,
+  "PR_AUC": 0.207,
+  "Brier_score_over_100": 0.236,
+  "base_rate": 0.125
+ },
+ "calm_reliability_below_35": 0.806,
+ "threshold_sensitivity": [
+  {
+   "threshold": 55,
+   "TP": 11,
+   "FP": 36,
+   "FN": 23,
+   "TN": 202,
+   "recall": 0.324,
+   "specificity": 0.849,
+   "precision": 0.234,
+   "NPV": 0.898,
+   "false_alarm_rate": 0.151,
+   "F1": 0.272,
+   "balanced_accuracy": 0.586
+  },
+  {
+   "threshold": 60,
+   "TP": 8,
+   "FP": 16,
+   "FN": 26,
+   "TN": 222,
+   "recall": 0.235,
+   "specificity": 0.933,
+   "precision": 0.333,
+   "NPV": 0.895,
+   "false_alarm_rate": 0.067,
+   "F1": 0.276,
+   "balanced_accuracy": 0.584
+  },
+  {
+   "threshold": 65,
+   "TP": 7,
+   "FP": 14,
+   "FN": 27,
+   "TN": 224,
+   "recall": 0.206,
+   "specificity": 0.941,
+   "precision": 0.333,
+   "NPV": 0.892,
+   "false_alarm_rate": 0.059,
+   "F1": 0.255,
+   "balanced_accuracy": 0.574
+  },
+  {
+   "threshold": 70,
+   "TP": 7,
+   "FP": 14,
+   "FN": 27,
+   "TN": 224,
+   "recall": 0.206,
+   "specificity": 0.941,
+   "precision": 0.333,
+   "NPV": 0.892,
+   "false_alarm_rate": 0.059,
+   "F1": 0.255,
+   "balanced_accuracy": 0.574
+  },
+  {
+   "threshold": 75,
+   "TP": 4,
+   "FP": 13,
+   "FN": 30,
+   "TN": 225,
+   "recall": 0.118,
+   "specificity": 0.945,
+   "precision": 0.235,
+   "NPV": 0.882,
+   "false_alarm_rate": 0.055,
+   "F1": 0.157,
+   "balanced_accuracy": 0.532
+  }
+ ],
+ "oos_window": [
+  "2013-01",
+  "2026-02"
+ ],
+ "oos_base_rate": 0.051,
+ "model_comparison_oos": [
+  {
+   "TP": 0,
+   "FP": 6,
+   "FN": 8,
+   "TN": 144,
+   "recall": 0.0,
+   "specificity": 0.96,
+   "precision": 0.0,
+   "NPV": 0.947,
+   "false_alarm_rate": 0.04,
+   "F1": NaN,
+   "balanced_accuracy": 0.48,
+   "ROC_AUC": 0.75,
+   "PR_AUC": 0.119,
+   "Brier": 0.238,
+   "model": "transparent index (>=65)"
+  },
+  {
+   "TP": 1,
+   "FP": 20,
+   "FN": 7,
+   "TN": 130,
+   "recall": 0.125,
+   "specificity": 0.867,
+   "precision": 0.048,
+   "NPV": 0.949,
+   "false_alarm_rate": 0.133,
+   "F1": 0.069,
+   "balanced_accuracy": 0.496,
+   "ROC_AUC": 0.406,
+   "PR_AUC": 0.059,
+   "Brier": 0.142,
+   "model": "logistic regression (p>=0.5)"
+  },
+  {
+   "TP": 0,
+   "FP": 0,
+   "FN": 8,
+   "TN": 150,
+   "recall": 0.0,
+   "specificity": 1.0,
+   "precision": NaN,
+   "NPV": 0.949,
+   "false_alarm_rate": 0.0,
+   "F1": NaN,
+   "balanced_accuracy": 0.5,
+   "ROC_AUC": 0.5,
+   "PR_AUC": 0.052,
+   "Brier": 0.048,
+   "model": "naive base rate (never alert)"
+  }
+ ],
+ "covid_excluded": {
+  "index_full_sample": {
+   "TP": 7,
+   "FP": 8,
+   "FN": 19,
+   "TN": 222,
+   "recall": 0.269,
+   "specificity": 0.965,
+   "precision": 0.467,
+   "NPV": 0.921,
+   "false_alarm_rate": 0.035,
+   "F1": 0.341,
+   "balanced_accuracy": 0.617,
+   "ROC_AUC": 0.378,
+   "PR_AUC": 0.223,
+   "Brier": 0.226,
+   "model": "index ex-COVID (full sample)"
+  },
+  "oos": [
+   {
+    "TP": 0,
+    "FP": 0,
+    "FN": 0,
+    "TN": 142,
+    "recall": NaN,
+    "specificity": 1.0,
+    "precision": NaN,
+    "NPV": 1.0,
+    "false_alarm_rate": 0.0,
+    "F1": NaN,
+    "balanced_accuracy": NaN,
+    "ROC_AUC": NaN,
+    "PR_AUC": NaN,
+    "Brier": 0.22,
+    "model": "transparent index ex-COVID (OOS)"
+   },
+   {
+    "TP": 0,
+    "FP": 14,
+    "FN": 0,
+    "TN": 128,
+    "recall": NaN,
+    "specificity": 0.901,
+    "precision": 0.0,
+    "NPV": 1.0,
+    "false_alarm_rate": 0.099,
+    "F1": NaN,
+    "balanced_accuracy": NaN,
+    "ROC_AUC": NaN,
+    "PR_AUC": NaN,
+    "Brier": 0.086,
+    "model": "logistic ex-COVID (OOS)"
+   }
+  ],
+  "exclusion_window_decision_months": [
+   "2019-09",
+   "2020-12"
+  ]
+ },
+ "secondary_target_index": {
+  "TP": 21,
+  "FP": 0,
+  "FN": 20,
+  "TN": 231,
+  "recall": 0.512,
+  "specificity": 1.0,
+  "precision": 1.0,
+  "NPV": 0.92,
+  "false_alarm_rate": 0.0,
+  "F1": 0.677,
+  "balanced_accuracy": 0.756,
+  "ROC_AUC": 0.825,
+  "PR_AUC": 0.694,
+  "model": "index vs payroll-growth-negative-within-6m"
+ },
+ "logistic_last_coefficients": {
+  "ur_mom": 0.936,
+  "emp_yoy": -0.568,
+  "imports_yoy": 0.045,
+  "exports_yoy": -0.543,
+  "peso_mom": 0.107,
+  "listings_yoy": -0.63,
+  "dom_yoy": 0.364,
+  "has_housing_data": -0.267
+ },
+ "interpolated_points": [
+  [
+   "ep_unrate",
+   "2025-10",
+   4.5
+  ]
+ ],
+ "caveats": [
+  "Revised (latest-vintage) data, not real-time vintages; benchmark revisions may flatter results.",
+  "Score uses publication lags (labor/housing t-1, trade t-2, peso t-0); the dashboard shows the same model at observation dates.",
+  "v5: dashboard and back-test share one model definition (payroll YoY, history from 2000).",
+  "Housing layer only exists from mid-2019 onward; earlier scores are labor+border reweighted.",
+  "Secondary target counts months already in a payroll downturn; see onset_eval.py for warnings vs detections.",
+  "Brier for the index treats score/100 as a probability, which it is not calibrated to be.",
+  "2025-10 EP unemployment missing at source; linearly interpolated."
+ ]
+}

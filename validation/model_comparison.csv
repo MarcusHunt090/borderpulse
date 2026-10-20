@@ -1,0 +1,6 @@
+model,TP,FP,FN,TN,recall,precision,false_alarm_rate,specificity,NPV,F1,balanced_accuracy,ROC_AUC,PR_AUC,Brier
+transparent index (>=65),0,6,8,144,0.0,0.0,0.04,0.96,0.947,nan,0.48,0.75,0.119,0.238
+logistic regression (p>=0.5),1,20,7,130,0.125,0.048,0.133,0.867,0.949,0.069,0.496,0.406,0.059,0.142
+naive base rate (never alert),0,0,8,150,0.0,nan,0.0,1.0,0.949,nan,0.5,0.5,0.052,0.048
+transparent index ex-COVID (OOS),0,0,0,142,nan,nan,0.0,1.0,1.0,nan,nan,nan,nan,0.22
+logistic ex-COVID (OOS),0,14,0,128,nan,0.0,0.099,0.901,1.0,nan,nan,nan,nan,0.086

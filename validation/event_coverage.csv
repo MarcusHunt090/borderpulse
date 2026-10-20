@@ -1,0 +1,7 @@
+event_window_start,event_window_end,deterioration_date,detected,first_alert_in_window,lead_months
+2004-07,2004-09,2004-12,False,,
+2008-01,2009-04,2008-07,True,2008-10,-3
+2010-04,2010-09,2010-10,False,,
+2010-12,2010-12,2011-06,False,,
+2019-09,2020-03,2020-03,False,,
+2020-10,2020-10,2020-11,False,,

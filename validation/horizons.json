@@ -1,0 +1,297 @@
+{
+ "horizons": {
+  "3m": {
+   "unemployment_+0.5pp": {
+    "index_at_65": {
+     "TP": 6,
+     "FP": 15,
+     "FN": 10,
+     "TN": 241,
+     "recall": 0.375,
+     "specificity": 0.941,
+     "precision": 0.286,
+     "NPV": 0.96,
+     "false_alarm_rate": 0.059,
+     "F1": 0.324,
+     "balanced_accuracy": 0.658,
+     "ROC_AUC": 0.746,
+     "PR_AUC": 0.255,
+     "base_rate": 0.059,
+     "n": 272
+    },
+    "band_probabilities": {
+     "Calm": {
+      "n": 67,
+      "p_event": 0.015
+     },
+     "Near normal": {
+      "n": 119,
+      "p_event": 0.034
+     },
+     "Above normal": {
+      "n": 65,
+      "p_event": 0.077
+     },
+     "High": {
+      "n": 21,
+      "p_event": 0.286
+     }
+    },
+    "logistic_oos": {
+     "ROC_AUC": 0.45,
+     "PR_AUC": 0.036,
+     "Brier": 0.065,
+     "oos_base_rate": 0.032,
+     "oos_n": 158
+    },
+    "current_band_p": 0.034,
+    "current_logistic_p": 0.019
+   },
+   "payroll_growth_negative": {
+    "index_at_65": {
+     "TP": 21,
+     "FP": 0,
+     "FN": 14,
+     "TN": 237,
+     "recall": 0.6,
+     "specificity": 1.0,
+     "precision": 1.0,
+     "NPV": 0.944,
+     "false_alarm_rate": 0.0,
+     "F1": 0.75,
+     "balanced_accuracy": 0.8,
+     "ROC_AUC": 0.864,
+     "PR_AUC": 0.749,
+     "base_rate": 0.129,
+     "n": 272
+    },
+    "band_probabilities": {
+     "Calm": {
+      "n": 67,
+      "p_event": 0.0
+     },
+     "Near normal": {
+      "n": 119,
+      "p_event": 0.067
+     },
+     "Above normal": {
+      "n": 65,
+      "p_event": 0.092
+     },
+     "High": {
+      "n": 21,
+      "p_event": 1.0
+     }
+    },
+    "logistic_oos": {
+     "ROC_AUC": 0.776,
+     "PR_AUC": 0.625,
+     "Brier": 0.06,
+     "oos_base_rate": 0.089,
+     "oos_n": 158
+    },
+    "current_band_p": 0.067,
+    "current_logistic_p": 0.033
+   }
+  },
+  "6m": {
+   "unemployment_+0.5pp": {
+    "index_at_65": {
+     "TP": 7,
+     "FP": 14,
+     "FN": 27,
+     "TN": 224,
+     "recall": 0.206,
+     "specificity": 0.941,
+     "precision": 0.333,
+     "NPV": 0.892,
+     "false_alarm_rate": 0.059,
+     "F1": 0.255,
+     "balanced_accuracy": 0.574,
+     "ROC_AUC": 0.472,
+     "PR_AUC": 0.207,
+     "base_rate": 0.125,
+     "n": 272
+    },
+    "band_probabilities": {
+     "Calm": {
+      "n": 67,
+      "p_event": 0.194
+     },
+     "Near normal": {
+      "n": 119,
+      "p_event": 0.059
+     },
+     "Above normal": {
+      "n": 65,
+      "p_event": 0.108
+     },
+     "High": {
+      "n": 21,
+      "p_event": 0.333
+     }
+    },
+    "logistic_oos": {
+     "ROC_AUC": 0.406,
+     "PR_AUC": 0.059,
+     "Brier": 0.142,
+     "oos_base_rate": 0.051,
+     "oos_n": 158
+    },
+    "current_band_p": 0.059,
+    "current_logistic_p": 0.112
+   },
+   "payroll_growth_negative": {
+    "index_at_65": {
+     "TP": 21,
+     "FP": 0,
+     "FN": 20,
+     "TN": 231,
+     "recall": 0.512,
+     "specificity": 1.0,
+     "precision": 1.0,
+     "NPV": 0.92,
+     "false_alarm_rate": 0.0,
+     "F1": 0.677,
+     "balanced_accuracy": 0.756,
+     "ROC_AUC": 0.825,
+     "PR_AUC": 0.694,
+     "base_rate": 0.151,
+     "n": 272
+    },
+    "band_probabilities": {
+     "Calm": {
+      "n": 67,
+      "p_event": 0.015
+     },
+     "Near normal": {
+      "n": 119,
+      "p_event": 0.084
+     },
+     "Above normal": {
+      "n": 65,
+      "p_event": 0.138
+     },
+     "High": {
+      "n": 21,
+      "p_event": 1.0
+     }
+    },
+    "logistic_oos": {
+     "ROC_AUC": 0.799,
+     "PR_AUC": 0.642,
+     "Brier": 0.095,
+     "oos_base_rate": 0.108,
+     "oos_n": 158
+    },
+    "current_band_p": 0.084,
+    "current_logistic_p": 0.091
+   }
+  },
+  "12m": {
+   "unemployment_+0.5pp": {
+    "index_at_65": {
+     "TP": 7,
+     "FP": 14,
+     "FN": 43,
+     "TN": 202,
+     "recall": 0.14,
+     "specificity": 0.935,
+     "precision": 0.333,
+     "NPV": 0.824,
+     "false_alarm_rate": 0.065,
+     "F1": 0.197,
+     "balanced_accuracy": 0.538,
+     "ROC_AUC": 0.421,
+     "PR_AUC": 0.216,
+     "base_rate": 0.188,
+     "n": 266
+    },
+    "band_probabilities": {
+     "Calm": {
+      "n": 67,
+      "p_event": 0.284
+     },
+     "Near normal": {
+      "n": 119,
+      "p_event": 0.134
+     },
+     "Above normal": {
+      "n": 59,
+      "p_event": 0.136
+     },
+     "High": {
+      "n": 21,
+      "p_event": 0.333
+     }
+    },
+    "logistic_oos": {
+     "ROC_AUC": 0.323,
+     "PR_AUC": 0.079,
+     "Brier": 0.199,
+     "oos_base_rate": 0.092,
+     "oos_n": 152
+    },
+    "current_band_p": 0.134,
+    "current_logistic_p": 0.25
+   },
+   "payroll_growth_negative": {
+    "index_at_65": {
+     "TP": 21,
+     "FP": 0,
+     "FN": 32,
+     "TN": 213,
+     "recall": 0.396,
+     "specificity": 1.0,
+     "precision": 1.0,
+     "NPV": 0.869,
+     "false_alarm_rate": 0.0,
+     "F1": 0.568,
+     "balanced_accuracy": 0.698,
+     "ROC_AUC": 0.716,
+     "PR_AUC": 0.604,
+     "base_rate": 0.199,
+     "n": 266
+    },
+    "band_probabilities": {
+     "Calm": {
+      "n": 67,
+      "p_event": 0.09
+     },
+     "Near normal": {
+      "n": 119,
+      "p_event": 0.143
+     },
+     "Above normal": {
+      "n": 59,
+      "p_event": 0.153
+     },
+     "High": {
+      "n": 21,
+      "p_event": 1.0
+     }
+    },
+    "logistic_oos": {
+     "ROC_AUC": 0.654,
+     "PR_AUC": 0.506,
+     "Brier": 0.155,
+     "oos_base_rate": 0.151,
+     "oos_n": 152
+    },
+    "current_band_p": 0.143,
+    "current_logistic_p": 0.296
+   }
+  }
+ },
+ "current": {
+  "month": "2026-09",
+  "score": 38.8,
+  "band": "Near normal"
+ },
+ "caveats": [
+  "Band probabilities are historical frequencies 2003-2025 (n per band shown); with 6 deterioration episodes they are rough guides, not calibrated forecasts.",
+  "The payroll event counts months already in a downturn (growth negative at any point in the horizon).",
+  "current_logistic_p is fit on all complete months (in-sample for the final fit); OOS quality per horizon is reported separately and is weak for the unemployment target.",
+  "12-month windows overlap heavily; effective sample is far smaller than n."
+ ]
+}

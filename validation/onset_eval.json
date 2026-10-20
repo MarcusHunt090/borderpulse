@@ -1,0 +1,160 @@
+{
+ "version": "5.0.0",
+ "prespecified": "2026-10-12",
+ "spec": "BorderPulse \u2014 onset evaluation (v5). Separates WARNING BEFORE A DOWNTURN STARTS from\nDETECTING ONE ALREADY UNDER WAY.\n\nWhy: the v3/v4 payroll target (T2) counts a month as a hit if payroll growth is negative in ANY\nof the next six months \u2014 including months when growth is already negative. In the published\nback-test, 19 of the 21 alert months had negative payroll growth in the alert month itself, so\n\"2 of 3 payroll downturns caught\" mixes one advance warning (2008) with one detection (2020).\n\nPRE-SPECIFICATION (fixed 2026-10-12, before scoring):\n  Onsets (observation-month data, as later revised):\n    payroll onset       = month YoY payroll growth turns negative after >= 6 non-negative months\n    unemployment onset  = month unemployment first sits >= 0.5pp above its prior-12-month low,\n                          after >= 12 months without that condition\n  Alert rules (as-publishable, i.e. with publication lags, from the existing back-test):\n    BorderPulse  score >= 65            (validation/backtest_monthly_results.csv)\n    Local Sahm   3-mo avg unemployment >= 0.5pp above the min of the prior 12 months' 3-mo avgs,\n                 using unemployment through t-1 (one-month publication lag)\n  Classification of each onset:\n    advance warning  = an alert in the 6 months BEFORE the onset (lead = months before onset)\n    detection        = no advance warning, but an alert in the onset month or the 6 months after\n    missed           = neither\n  False alarm episode = an alert episode with no onset of that type within 6 months either side.\n  Counts are reported with exact (Clopper-Pearson) 95% intervals; there are very few events.",
+ "evaluation_span": [
+  "2003-07",
+  "2026-02"
+ ],
+ "payroll_onsets": [
+  "2003-05",
+  "2008-12",
+  "2020-04"
+ ],
+ "unemployment_onsets": [
+  "2003-01",
+  "2004-12",
+  "2008-07",
+  "2020-03"
+ ],
+ "results": {
+  "BorderPulse score \u2265 65": {
+   "payroll_onset": {
+    "onsets": [
+     {
+      "onset": "2008-12",
+      "result": "advance warning",
+      "first_alert": "2008-10",
+      "lead_months": 2
+     },
+     {
+      "onset": "2020-04",
+      "result": "detected after onset",
+      "first_alert": "2020-04",
+      "lag_months": 0
+     }
+    ],
+    "n_onsets": 2,
+    "advance_warnings": 1,
+    "detections_after_onset": 1,
+    "missed": 0,
+    "advance_rate_ci95": [
+     0.013,
+     0.987
+    ],
+    "alert_episodes": 2,
+    "false_alarm_episodes": 0,
+    "false_alarm_runs": []
+   },
+   "unemployment_onset": {
+    "onsets": [
+     {
+      "onset": "2004-12",
+      "result": "missed"
+     },
+     {
+      "onset": "2008-07",
+      "result": "detected after onset",
+      "first_alert": "2008-10",
+      "lag_months": 3
+     },
+     {
+      "onset": "2020-03",
+      "result": "detected after onset",
+      "first_alert": "2020-04",
+      "lag_months": 1
+     }
+    ],
+    "n_onsets": 3,
+    "advance_warnings": 0,
+    "detections_after_onset": 2,
+    "missed": 1,
+    "advance_rate_ci95": [
+     0.0,
+     0.708
+    ],
+    "alert_episodes": 2,
+    "false_alarm_episodes": 0,
+    "false_alarm_runs": []
+   }
+  },
+  "Local Sahm rule": {
+   "payroll_onset": {
+    "onsets": [
+     {
+      "onset": "2008-12",
+      "result": "advance warning",
+      "first_alert": "2008-09",
+      "lead_months": 3
+     },
+     {
+      "onset": "2020-04",
+      "result": "detected after onset",
+      "first_alert": "2020-04",
+      "lag_months": 0
+     }
+    ],
+    "n_onsets": 2,
+    "advance_warnings": 1,
+    "detections_after_onset": 1,
+    "missed": 0,
+    "advance_rate_ci95": [
+     0.013,
+     0.987
+    ],
+    "alert_episodes": 5,
+    "false_alarm_episodes": 2,
+    "false_alarm_runs": [
+     [
+      "2005-03",
+      "2005-03"
+     ],
+     [
+      "2010-12",
+      "2011-10"
+     ]
+    ]
+   },
+   "unemployment_onset": {
+    "onsets": [
+     {
+      "onset": "2004-12",
+      "result": "detected after onset",
+      "first_alert": "2005-03",
+      "lag_months": 3
+     },
+     {
+      "onset": "2008-07",
+      "result": "detected after onset",
+      "first_alert": "2008-09",
+      "lag_months": 2
+     },
+     {
+      "onset": "2020-03",
+      "result": "detected after onset",
+      "first_alert": "2020-04",
+      "lag_months": 1
+     }
+    ],
+    "n_onsets": 3,
+    "advance_warnings": 0,
+    "detections_after_onset": 3,
+    "missed": 0,
+    "advance_rate_ci95": [
+     0.0,
+     0.708
+    ],
+    "alert_episodes": 5,
+    "false_alarm_episodes": 1,
+    "false_alarm_runs": [
+     [
+      "2010-12",
+      "2011-10"
+     ]
+    ]
+   }
+  }
+ },
+ "alert_months_ge65": 21,
+ "alert_months_with_payroll_already_negative": 19
+}

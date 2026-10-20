@@ -1,0 +1,2063 @@
+<title>BorderPulse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<style>
+/* v6 layout: a monthly regional briefing. Overview answers "where is pressure, is it changing, what drives it";
+   Indicators / Sectors / Research hold the evidence. One sans for reading, the condensed face only for the
+   wordmark and the headline number. Warm pale page, white panels, navy ink, blue for the main series. */
+:root{
+  color-scheme: light;
+  --page:#f5f3ee; --surface:#ffffff; --surface-2:#efede6; --line:#e3e0d7; --baseline:#bfbcb1;
+  --ring:rgba(21,34,56,.11);
+  --ink:#152238; --ink-2:#434c5e; --muted:#5b6271; --warning-text:#835800; --good-text:#1f6b2a;
+  --accent:#1d5fae; --accent-soft:rgba(29,95,174,.08);
+  --pos:#c2462b;  /* adds pressure */
+  --neg:#2f72c4;  /* eases pressure */
+  --s-ep:#2a78d6; --s-tx:#eb6834; --s-us:#1baf7a; --s-lc:#eda100;
+  --good:#2e9a3e; --warning:#e0a100; --serious:#e07a4f; --critical:#cc3b3b; --level-mid:#8b919c;
+  --band:rgba(29,95,174,.07);
+  --shadow:0 1px 2px rgba(21,34,56,.05);
+  --f-body:'Barlow',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --f-display:'Barlow Condensed','Barlow',system-ui,sans-serif;
+  --f-mono:ui-monospace,Menlo,Consolas,monospace;
+  --fs-xs:13px; --fs-s:14px; --fs-b:16px; --fs-h3:18px; --fs-h2:22px; --fs-h1:28px;
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:24px; --sp-6:32px;
+  --r-s:8px; --r-l:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --page:#0e1117; --surface:#161b24; --surface-2:#1f2531; --line:#2a313d; --baseline:#46505f;
+    --ring:rgba(255,255,255,.10);
+    --ink:#eef1f6; --ink-2:#bec5d1; --muted:#9da5b2; --warning-text:#f2b632; --good-text:#62c76f;
+    --accent:#6aa5ee; --accent-soft:rgba(106,165,238,.10);
+    --pos:#ef7d61; --neg:#64a0ef;
+    --s-ep:#3987e5; --s-tx:#d95926; --s-us:#199e70; --s-lc:#c98500;
+    --good:#3fae4f; --warning:#e6aa1a; --serious:#e2845c; --critical:#e05555; --level-mid:#7d8592;
+    --band:rgba(106,165,238,.10); --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --page:#0e1117; --surface:#161b24; --surface-2:#1f2531; --line:#2a313d; --baseline:#46505f;
+  --ring:rgba(255,255,255,.10);
+  --ink:#eef1f6; --ink-2:#bec5d1; --muted:#9da5b2; --warning-text:#f2b632; --good-text:#62c76f;
+  --accent:#6aa5ee; --accent-soft:rgba(106,165,238,.10);
+  --pos:#ef7d61; --neg:#64a0ef;
+  --s-ep:#3987e5; --s-tx:#d95926; --s-us:#199e70; --s-lc:#c98500;
+  --good:#3fae4f; --warning:#e6aa1a; --serious:#e2845c; --critical:#e05555; --level-mid:#7d8592;
+  --band:rgba(106,165,238,.10); --shadow:none;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--page);color:var(--ink);font-family:var(--f-body);font-size:var(--fs-b);line-height:1.55}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:20px;padding-block:0 64px}
+a{color:var(--accent);text-underline-offset:2px}
+code{font-family:var(--f-mono);font-size:.86em}
+h1,h2,h3{text-wrap:balance;color:var(--ink)}
+button{font:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.num,.tnum{font-variant-numeric:tabular-nums}
+.card,.panel>section{scroll-margin-top:72px}
+.muted{color:var(--muted)}
+
+/* header + navigation */
+header.brand{display:flex;align-items:baseline;gap:var(--sp-3);flex-wrap:wrap;padding-block:22px 10px}
+.brandname{font-family:var(--f-display);font-weight:700;font-size:30px;letter-spacing:.4px;text-transform:uppercase;line-height:1}
+.brandname .pulse{color:var(--accent)}
+.brandsub{color:var(--ink-2);font-size:var(--fs-s)}
+.asof{margin-left:auto;color:var(--muted);font-size:var(--fs-xs)}
+.tabnav{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;display:grid;grid-template-columns:repeat(4,max-content);gap:6px;
+  background:var(--page);padding-block:8px;border-bottom:1px solid var(--line);margin-bottom:var(--sp-5)}
+.tabnav button{font-weight:600;font-size:15px;color:var(--ink-2);background:transparent;border:1px solid transparent;border-radius:999px;
+  padding:7px 16px;cursor:pointer;min-height:40px}
+.tabnav button:hover{background:var(--surface-2);color:var(--ink)}
+.tabnav button[aria-selected="true"]{background:var(--ink);color:var(--page)}
+.panel{display:flex;flex-direction:column;gap:var(--sp-5)}
+@media (prefers-reduced-motion: no-preference){.panel{animation:fadein .2s ease}}
+@keyframes fadein{from{opacity:.4}to{opacity:1}}
+
+/* cards and section headings */
+.card{background:var(--surface);border:1px solid var(--ring);border-radius:var(--r-l);padding:20px 22px;min-width:0;box-shadow:var(--shadow)}
+.card>h2,.sechead h2{margin:0;font-size:var(--fs-h2);font-weight:600;line-height:1.25}
+.sub{margin:4px 0 14px;font-size:var(--fs-s);color:var(--ink-2);max-width:78ch}
+h3.h3{margin:20px 0 6px;font-size:var(--fs-h3);font-weight:600}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-5)}
+.row2>*{min-width:0}
+.note{font-size:var(--fs-s);color:var(--ink-2);margin-top:12px;max-width:80ch;line-height:1.6}
+.note b{color:var(--ink)}
+.callout{border-left:3px solid var(--warning);padding:2px 0 2px 14px;margin:14px 0;color:var(--ink-2);max-width:80ch}
+.callout b{color:var(--ink)}
+.overflow{overflow-x:auto}
+.morebtn{display:inline-flex;align-items:center;gap:6px;margin-top:10px;font-size:var(--fs-s);font-weight:600;color:var(--accent);
+  background:none;border:none;padding:6px 0;cursor:pointer;min-height:36px}
+.morebtn::after{content:"";width:7px;height:7px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg) translateY(-2px)}
+.morebtn[aria-expanded="true"]::after{transform:rotate(-135deg) translateY(-1px)}
+details.more{margin-top:10px;font-size:var(--fs-s);color:var(--ink-2)}
+details.more>summary{cursor:pointer;color:var(--accent);font-weight:600;min-height:32px;display:flex;align-items:center}
+details.more[open]>summary{margin-bottom:6px}
+.btn{display:inline-flex;align-items:center;gap:7px;font-size:var(--fs-s);font-weight:600;color:var(--surface);background:var(--accent);
+  border:none;border-radius:var(--r-s);padding:9px 15px;cursor:pointer;min-height:40px}
+.btn.ghost{color:var(--accent);background:transparent;border:1.5px solid var(--accent)}
+.btn[disabled]{opacity:.45;cursor:default}
+.dlrow{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0 4px}
+
+/* level chip and pressure labels */
+.chip{display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:3px 11px;font-weight:600;font-size:var(--fs-s);
+  border:1.5px solid var(--baseline);color:var(--ink);background:var(--surface);white-space:nowrap}
+.chip .dot{width:9px;height:9px;border-radius:50%;background:var(--muted)}
+.chip small{font-weight:500;color:var(--muted);font-size:var(--fs-xs)}
+.up{color:var(--pos)} .down{color:var(--neg)}
+.keyrow{display:flex;gap:16px;flex-wrap:wrap;font-size:var(--fs-xs);color:var(--ink-2);margin:0 0 8px}
+.keyrow .k{display:inline-flex;align-items:center;gap:6px}
+.keyrow .sw{width:14px;height:8px;border-radius:2px}
+
+/* ===== Overview ===== */
+.ov-top{display:grid;grid-template-columns:minmax(0,370px) minmax(0,1fr);gap:var(--sp-5);align-items:start}
+.brief{display:flex;flex-direction:column;gap:var(--sp-3)}
+.eyebrow{font-size:var(--fs-s);font-weight:600;color:var(--accent)}
+.brief h1{margin:0;font-size:var(--fs-h1);line-height:1.2;font-weight:700}
+.brief .lead{margin:0;color:var(--ink-2);font-size:var(--fs-b)}
+.scoreline{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-top:4px}
+.bignum{font-family:var(--f-display);font-weight:700;font-size:72px;line-height:.85;font-variant-numeric:tabular-nums}
+.bignum small{font-size:24px;font-weight:600;color:var(--muted);margin-left:2px}
+.scoreline .side{display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding-bottom:4px}
+.changes{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:var(--fs-s);color:var(--ink-2)}
+.changes b{font-variant-numeric:tabular-nums}
+.scale{margin-top:4px}
+.scale .bar{position:relative;height:12px;display:flex;border-radius:6px;overflow:visible}
+.scale .bar span{height:100%;opacity:.35}
+.scale .bar span:first-child{border-radius:6px 0 0 6px} .scale .bar span:last-child{border-radius:0 6px 6px 0}
+.scale .rng{position:absolute;top:-3px;height:18px;border:2px solid var(--ink);border-radius:5px;opacity:.55}
+.scale .mark{position:absolute;top:-5px;width:4px;height:22px;margin-left:-2px;background:var(--ink);border-radius:2px;box-shadow:0 0 0 2px var(--surface)}
+.scale .lbl{position:relative;height:18px;font-size:12px;color:var(--muted);margin-top:4px}
+.scale .lbl span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+.scale .lbl span:first-child{transform:none} .scale .lbl span:last-child{transform:translateX(-100%)}
+.status{font-size:var(--fs-s);color:var(--ink-2)}
+.status b{color:var(--good-text)} .status b.on{color:var(--critical)}
+.histcard{display:flex;flex-direction:column}
+.histcard .head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.histcard h2{margin:0;font-size:var(--fs-h3);font-weight:600}
+.histcard .sub{margin:2px 0 8px}
+.seg{display:inline-flex;gap:2px;background:var(--surface-2);border-radius:var(--r-s);padding:3px}
+.seg button{font-size:var(--fs-xs);font-weight:600;color:var(--ink-2);background:transparent;border:none;border-radius:6px;padding:6px 11px;cursor:pointer;min-height:32px}
+.seg button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.1)}
+
+.layers{display:grid;grid-template-columns:repeat(3,1fr);gap:0;padding:0;overflow:hidden}
+.layer{padding:16px 20px;display:grid;grid-template-columns:1fr auto;grid-template-areas:"name val" "desc val" "spark spark";gap:2px 12px;min-width:0}
+.layer+.layer{border-left:1px solid var(--line)}
+.layer h3{grid-area:name;margin:0;font-size:var(--fs-b);font-weight:600}
+.layer .ld{grid-area:desc;font-size:var(--fs-xs);color:var(--muted)}
+.layer .lv{grid-area:val;text-align:right}
+.layer .lv b{display:block;font-family:var(--f-display);font-size:34px;line-height:1;font-variant-numeric:tabular-nums}
+.layer .lv span{font-size:var(--fs-xs);color:var(--ink-2);white-space:nowrap}
+.layer .ls{grid-area:spark;margin-top:8px}
+.layer .ls svg{display:block;width:100%;height:34px}
+.layer .ls .cap{font-size:12px;color:var(--muted)}
+
+/* contribution bars (shared: what changed, why, decomposition) */
+.cbar{display:grid;grid-template-columns:minmax(0,1fr) minmax(110px,30%) 64px;gap:10px 14px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.cbar:first-of-type{border-top:none}
+.cbar .ct{min-width:0;font-size:var(--fs-s);line-height:1.4}
+.cbar .ct .cm{display:block;font-size:12.5px;color:var(--muted);margin-top:1px}
+.cbar .ct .eff{font-weight:600}
+.cbar .track{position:relative;height:14px}
+.cbar .track .zero{position:absolute;left:50%;top:-3px;width:1.5px;height:20px;background:var(--baseline)}
+.cbar .track i{position:absolute;top:2px;height:10px;border-radius:3px}
+.cbar .cv{text-align:right;font-variant-numeric:tabular-nums;font-weight:700;font-size:var(--fs-b)}
+.cbar .cv small{display:block;font-weight:500;font-size:11.5px;color:var(--muted)}
+.cbar.click{cursor:pointer;border-radius:6px}
+.cbar.click:hover{background:var(--surface-2)}
+.cbar .xtra{grid-column:1 / -1;font-size:var(--fs-xs);color:var(--ink-2);line-height:1.55;max-width:80ch;padding-bottom:2px}
+.cbar.lagged .ct{color:var(--ink-2)}
+.cbar.is-hidden{display:none}
+.cbaxis{display:grid;grid-template-columns:minmax(0,1fr) minmax(110px,30%) 64px;gap:14px;font-size:12px;color:var(--muted);padding-top:4px}
+.cbaxis span:nth-child(2){display:flex;justify-content:space-between}
+.tally{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:var(--fs-s);color:var(--ink-2);padding:2px 0 10px}
+.tally b{font-variant-numeric:tabular-nums}
+.tally .tn{margin-left:auto;color:var(--ink)}
+.flag{display:inline-block;font-size:12px;font-weight:600;color:var(--warning-text);margin-left:6px}
+
+.cov{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:var(--sp-5)}
+.cov>*{min-width:0}
+.covsum{display:flex;flex-direction:column;gap:10px;font-size:var(--fs-s);color:var(--ink-2)}
+.covsum .cs{display:flex;gap:12px;align-items:baseline}
+.covsum .cs b{font-family:var(--f-display);font-size:28px;color:var(--ink);font-variant-numeric:tabular-nums;min-width:52px}
+.prelim{border:1.5px dashed var(--baseline);border-radius:var(--r-s);padding:10px 12px;background:var(--surface-2)}
+.prelim b{color:var(--ink)}
+.months{display:flex;gap:4px;align-items:center}
+.months i{width:12px;height:12px;border-radius:3px;background:var(--accent);display:inline-block}
+.months i.off{background:transparent;border:1.5px dashed var(--baseline)}
+
+.shortcuts{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--sp-4)}
+.shortcut{display:flex;flex-direction:column;gap:6px;padding:14px 16px;border-radius:var(--r-s);background:var(--surface-2);min-width:0}
+.shortcut h3{margin:0;font-size:var(--fs-b);font-weight:600}
+.shortcut p{margin:0;font-size:var(--fs-s);color:var(--ink-2)}
+.shortcut .links{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:var(--fs-s);margin-top:auto;padding-top:4px}
+
+/* tables */
+table.t{width:100%;border-collapse:collapse;font-size:var(--fs-s)}
+table.t th{font-weight:600;font-size:var(--fs-xs);color:var(--muted);text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:bottom}
+table.t td{padding:8px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums;vertical-align:top}
+table.t tr:last-child td{border-bottom:none}
+table.t .num{text-align:right}
+table.t.small{font-size:var(--fs-xs)}
+table.t code{font-size:12px}
+.tablebox{max-height:320px;overflow:auto;border:1px solid var(--line);border-radius:var(--r-s);margin-top:6px}
+.tablebox table.t th{position:sticky;top:0;background:var(--surface)}
+.stchip{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;padding:2px 9px;border-radius:999px;
+  border:1.3px solid var(--baseline);color:var(--ink-2);white-space:nowrap}
+.stchip .dot{width:7px;height:7px;border-radius:50%;background:var(--muted)}
+.stchip.next .dot{background:var(--accent)} .stchip.ready .dot{background:var(--good)}
+.status-conv{color:var(--warning-text);font-weight:600;font-size:12.5px}
+.status-val{color:var(--good-text);font-weight:600;font-size:12.5px}
+
+/* charts */
+.chartbox{position:relative;min-width:0}
+.chartbox svg{display:block;width:100%;height:auto;touch-action:pan-y}
+.chartbox svg:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+.tip{position:absolute;pointer-events:none;background:var(--surface);border:1px solid var(--ring);border-radius:var(--r-s);padding:7px 10px;
+  font-size:var(--fs-xs);box-shadow:0 4px 14px rgba(0,0,0,.12);display:none;min-width:140px;z-index:5}
+.tip .td{color:var(--muted);font-weight:600}
+.tip .tr{display:flex;justify-content:space-between;gap:14px}
+.tip .tr span{display:inline-flex;align-items:center;gap:6px}
+.tip .tr i{width:10px;height:3px;border-radius:2px;display:inline-block}
+.tip b{font-variant-numeric:tabular-nums}
+.chartread{font-size:var(--fs-xs);color:var(--muted);margin-top:4px;min-height:1.3em}
+.legend{display:flex;gap:6px 14px;flex-wrap:wrap;font-size:var(--fs-xs);color:var(--ink-2);margin:0 0 6px}
+.legend .key{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:6px;border:1px solid var(--line);background:var(--surface);cursor:pointer;min-height:32px}
+.legend .key.static{cursor:default;border-color:transparent;padding-inline:0}
+.legend .key.off{opacity:.45;text-decoration:line-through}
+.legend .swatch{width:14px;height:3px;border-radius:2px}
+
+/* indicators */
+.ind{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,.9fr) minmax(0,1.5fr);gap:6px 18px;padding:14px 0;border-top:1px solid var(--line)}
+.ind:first-of-type{border-top:none}
+.ind .in{font-weight:600}
+.ind .in small{display:block;font-weight:500;font-size:12.5px;color:var(--muted)}
+.ind .iv b{font-size:20px;font-variant-numeric:tabular-nums}
+.ind .iv small{display:block;font-size:12.5px;color:var(--muted)}
+.ind .ii{font-size:var(--fs-s);color:var(--ink-2)}
+.ind .ii .eff{font-weight:600}
+.ind details{grid-column:1 / -1;font-size:var(--fs-s);color:var(--ink-2)}
+.ind details summary{cursor:pointer;color:var(--accent);font-weight:600;font-size:var(--fs-xs);min-height:28px;display:inline-flex;align-items:center}
+.ind details p{margin:6px 0 0;max-width:80ch}
+.laygrp{margin:18px 0 0;font-size:var(--fs-xs);font-weight:600;color:var(--muted)}
+.laygrp:first-of-type{margin-top:4px}
+.cmpbars{display:grid;grid-template-columns:150px 1fr 44px;gap:8px 10px;align-items:center;font-size:var(--fs-s);margin:4px 0 14px}
+.cmpbars .cb{height:10px;border-radius:4px;background:var(--surface-2);overflow:hidden}
+.cmpbars .cb i{display:block;height:100%;border-radius:4px}
+.cmpbars .cv{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.cmpbars .cl{color:var(--ink-2)}
+.badge{display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:3px 12px;font-weight:600;font-size:var(--fs-xs);border:1.5px solid}
+.badge .dot{width:8px;height:8px;border-radius:50%}
+.chain{display:grid;grid-template-columns:1fr 28px 1fr 28px 1fr;align-items:stretch;margin:6px 0 12px}
+.chainarrow{display:flex;align-items:center;justify-content:center;font-weight:700;font-size:22px;color:var(--muted)}
+.chainstep{background:var(--surface-2);border-radius:var(--r-s);padding:12px 14px;min-width:0}
+.chainstep h3{margin:0;font-size:var(--fs-b);font-weight:600}
+.chainstep p{margin:2px 0 8px;font-size:var(--fs-xs);color:var(--ink-2);line-height:1.45}
+.chainrow{display:grid;grid-template-columns:1fr auto 84px;gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--line);font-size:var(--fs-s)}
+.chainrow .cm{display:block;font-size:12px;color:var(--muted)}
+.chainrow .cv{font-weight:700;font-size:18px;font-variant-numeric:tabular-nums;text-align:right}
+.chainrow svg{display:block;width:84px;height:26px}
+.mini{display:inline-flex;align-items:center;gap:8px;justify-content:flex-end;white-space:nowrap}
+.mini .mb{position:relative;width:72px;height:10px;background:var(--surface-2);border-radius:4px;overflow:hidden;flex:none}
+.mini .mb .mid{position:absolute;left:50%;top:0;width:1.2px;height:100%;background:var(--baseline)}
+.mini .mb i{position:absolute;top:1px;height:8px;border-radius:4px}
+.mini .mv{min-width:52px;text-align:right}
+
+/* sectors */
+.sec{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(120px,1.4fr) 70px minmax(0,.9fr);gap:8px 16px;align-items:center;padding:11px 8px;
+  border-top:1px solid var(--line);cursor:pointer;border-radius:6px;background:none;border-left:none;border-right:none;border-bottom:none;width:100%;text-align:left;color:var(--ink)}
+.sec:hover{background:var(--surface-2)}
+.sec .sn{font-weight:600;font-size:var(--fs-s)}
+.sec .sn small{display:block;font-weight:500;font-size:12.5px;color:var(--muted)}
+.sec .track{position:relative;height:14px}
+.sec .track .zero{position:absolute;top:-3px;width:1.5px;height:20px;background:var(--baseline)}
+.sec .track i{position:absolute;top:2px;height:10px;border-radius:3px}
+.sec .sv{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+.sec .sx{font-size:12.5px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.secdetail{padding:6px 8px 14px}
+.sechead-row{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(120px,1.4fr) 70px minmax(0,.9fr);gap:16px;padding:0 8px 6px;font-size:12.5px;color:var(--muted);font-weight:600}
+
+/* research */
+.subnav{display:flex;flex-wrap:wrap;gap:6px}
+.subnav a{font-size:var(--fs-s);font-weight:600;text-decoration:none;color:var(--ink-2);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 13px;min-height:36px;display:inline-flex;align-items:center}
+.subnav a:hover{color:var(--ink);border-color:var(--baseline)}
+.verdicts{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 4px}
+.vpill{display:inline-flex;align-items:center;gap:8px;border-radius:var(--r-s);padding:6px 12px;font-weight:600;font-size:var(--fs-s);border:1.5px solid;background:var(--surface);line-height:1.35}
+.vpill .dot{width:9px;height:9px;border-radius:50%;flex:none}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:14px 0 4px}
+.stat{background:var(--surface-2);border-radius:var(--r-s);padding:10px 14px}
+.stat .v{font-family:var(--f-display);font-weight:700;font-size:28px;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat .k{font-size:var(--fs-xs);color:var(--ink-2)}
+.vgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px 28px}
+.vgrid>div{min-width:0}
+.pbar{display:flex;align-items:center;gap:8px;justify-content:flex-end}
+.pbar .pt{position:relative;width:84px;height:10px;background:var(--surface-2);border-radius:4px;flex:none}
+.pbar .pt i{position:absolute;left:0;top:1px;height:8px;border-radius:4px;background:var(--accent)}
+.pbar .pt b{position:absolute;top:-3px;width:2px;height:16px;background:var(--ink-2);border-radius:1px}
+.pbar .pv{min-width:112px;text-align:right;white-space:nowrap}
+.pbar .pv small{color:var(--muted)}
+.dots{display:inline-flex;align-items:center;gap:3px;justify-content:flex-end}
+.dots i{width:10px;height:10px;border-radius:50%;border:1.5px solid var(--ink-2);display:inline-block}
+.dots i.on{background:var(--ink-2)}
+.dots span{margin-left:6px}
+.labwrap{display:grid;grid-template-columns:290px 1fr;gap:22px}
+.labwrap>div{min-width:0}
+.labctl{background:var(--surface-2);border-radius:var(--r-s);padding:14px 16px}
+.labctl h3{margin:0 0 6px;font-size:var(--fs-b);font-weight:600}
+.labctl label{display:block;font-size:var(--fs-s);color:var(--ink-2);margin:10px 0 2px}
+.labctl label b{color:var(--ink);font-variant-numeric:tabular-nums}
+.labctl input[type=range]{width:100%;accent-color:var(--accent);min-height:28px}
+.labctl select{width:100%;font-size:var(--fs-s);color:var(--ink);background:var(--surface);border:1px solid var(--ring);border-radius:6px;padding:7px 8px}
+.labind{display:flex;flex-direction:column;gap:2px;margin-top:4px}
+.labind label{display:flex;align-items:center;gap:8px;font-size:var(--fs-s);margin:0;min-height:30px}
+.labind input{accent-color:var(--accent);width:18px;height:18px}
+.configstr{font-family:var(--f-mono);font-size:12px;color:var(--muted);background:var(--surface-2);border-radius:6px;padding:6px 9px;margin-top:10px;word-break:break-all}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:10px 28px;margin-top:10px}
+.cols div{font-size:var(--fs-s);color:var(--ink-2)}
+.cols b{color:var(--ink)}
+.prose p{max-width:78ch;color:var(--ink-2);margin:8px 0}
+.prose p b{color:var(--ink)}
+footer.sources{margin-top:var(--sp-6);font-size:var(--fs-xs);color:var(--muted);max-width:90ch;line-height:1.65}
+footer.sources b{color:var(--ink-2)}
+
+/* responsive */
+@media (max-width:900px){
+  .ov-top{grid-template-columns:1fr}
+  .layers{grid-template-columns:1fr}
+  .layer+.layer{border-left:none;border-top:1px solid var(--line)}
+  .layer{grid-template-columns:1fr auto 110px;grid-template-areas:"name val spark" "desc val spark"}
+  .layer .ls{margin-top:0} .layer .ls .cap{display:none}
+  .row2,.cov,.vgrid,.cols,.labwrap{grid-template-columns:1fr}
+  .shortcuts{grid-template-columns:1fr}
+  .chain{grid-template-columns:1fr;gap:6px}
+  .chainarrow{transform:rotate(90deg);height:22px}
+}
+@media (max-width:640px){
+  .wrap{padding-inline:16px}
+  .card{padding:16px}
+  .asof{margin-left:0;width:100%}
+  .tabnav{grid-template-columns:repeat(4,1fr);gap:4px}
+  .tabnav button{padding:7px 4px;font-size:14px}
+  .brief h1{font-size:24px}
+  .bignum{font-size:60px}
+  .cbar{grid-template-columns:minmax(0,1fr) 60px;grid-template-areas:"t v" "bar bar";gap:6px 10px}
+  .cbar .ct{grid-area:t} .cbar .track{grid-area:bar} .cbar .cv{grid-area:v}
+  .cbaxis{grid-template-columns:1fr} .cbaxis span:first-child,.cbaxis span:last-child{display:none}
+  .tally .tn{margin-left:0}
+  .ind{grid-template-columns:1fr auto;gap:4px 12px}
+  .ind .in{grid-column:1} .ind .iv{grid-column:2;text-align:right} .ind .ii{grid-column:1 / -1}
+  .sec,.sechead-row{grid-template-columns:minmax(0,1fr) 64px;gap:6px 10px}
+  .sec .track{grid-column:1 / -1;grid-row:2} .sec .sx{grid-column:1 / -1;grid-row:3}
+  .sechead-row span:nth-child(2),.sechead-row span:nth-child(4){display:none}
+  .layer{grid-template-columns:1fr auto 84px}
+  .cmpbars{grid-template-columns:110px 1fr 36px;font-size:var(--fs-xs)}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .pbar .pt{width:60px} .pbar .pv{min-width:92px}
+}
+@media (max-width:400px){
+  .layer{grid-template-columns:1fr auto;grid-template-areas:"name val" "desc val" "spark spark"}
+  .layer .ls{margin-top:6px}
+}
+
+/* ===== v6.1 look: navy banner + sidebar, dashboard grid (after Marcus's reference mockup) ===== */
+:root{
+  --page:#eceff3; --surface:#ffffff; --surface-2:#f2f4f7; --line:#e3e7ed; --baseline:#bcc3cf;
+  --ink:#16223b; --ink-2:#45506a; --muted:#5a6479;
+  --navy:#17284a; --navy-2:#1f3563; --navy-ink:#eef2fa; --navy-muted:#b4c0d8; --navy-active:#2f63c4;
+  --accent:#2457ad; --accent-soft:rgba(36,87,173,.08);
+  --pos:#cc3a2b; --neg:#2e8a4a;
+  --good:#3a9b4a; --level-mid:#e3b21c; --serious:#ef8a2e; --critical:#d63a2c;
+  --lvt-calm:#1f6b2a; --lvt-near:#7d5f00; --lvt-above:#a84a10; --lvt-high:#b42318;
+  --pos-soft:rgba(204,58,43,.10); --neg-soft:rgba(46,138,74,.12);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --page:#0c1019; --surface:#151b27; --surface-2:#1d2433; --line:#273043; --baseline:#46516a;
+    --ink:#eef1f7; --ink-2:#bfc7d6; --muted:#9ea8bb;
+    --navy:#0f1a31; --navy-2:#172848; --navy-ink:#eef2fa; --navy-muted:#a9b6d0; --navy-active:#3b72d6;
+    --accent:#6ea2f0; --accent-soft:rgba(110,162,240,.10);
+    --pos:#f0715f; --neg:#5cc274;
+    --good:#4cb75c; --level-mid:#e6b928; --serious:#f39a4a; --critical:#ee5a4a;
+    --lvt-calm:#6fd17e; --lvt-near:#f0c94a; --lvt-above:#f6a35e; --lvt-high:#ff7b6b;
+    --pos-soft:rgba(240,113,95,.14); --neg-soft:rgba(92,194,116,.14);
+  }
+}
+:root[data-theme="dark"]{
+  --page:#0c1019; --surface:#151b27; --surface-2:#1d2433; --line:#273043; --baseline:#46516a;
+  --ink:#eef1f7; --ink-2:#bfc7d6; --muted:#9ea8bb;
+  --navy:#0f1a31; --navy-2:#172848; --navy-ink:#eef2fa; --navy-muted:#a9b6d0; --navy-active:#3b72d6;
+  --accent:#6ea2f0; --accent-soft:rgba(110,162,240,.10);
+  --pos:#f0715f; --neg:#5cc274;
+  --good:#4cb75c; --level-mid:#e6b928; --serious:#f39a4a; --critical:#ee5a4a;
+  --lvt-calm:#6fd17e; --lvt-near:#f0c94a; --lvt-above:#f6a35e; --lvt-high:#ff7b6b;
+  --pos-soft:rgba(240,113,95,.14); --neg-soft:rgba(92,194,116,.14);
+}
+.app{max-width:1440px;margin:0 auto;padding-inline:16px;padding-block:16px 40px}
+.shell{border-radius:16px;overflow:hidden;background:var(--page);box-shadow:0 2px 10px rgba(16,28,52,.10);border:1px solid var(--ring)}
+/* banner */
+.banner{position:relative;display:grid;grid-template-columns:230px 1fr auto;align-items:center;gap:20px;min-height:116px;
+  background:linear-gradient(100deg,var(--navy) 0%,var(--navy) 38%,var(--navy-2) 100%);color:var(--navy-ink);overflow:hidden}
+.banner .skyline{position:absolute;right:0;bottom:0;height:100%;width:62%;pointer-events:none}
+.banner .skyline svg{display:block;width:100%;height:100%}
+.logo{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:16px 10px;border-right:1px solid rgba(255,255,255,.12);height:100%;justify-content:center}
+.logo svg{width:120px;height:30px}
+.logo .wm{font-family:var(--f-display);font-weight:700;font-size:23px;letter-spacing:2px;line-height:1}
+.logo .wm b{color:#8fb6ff;font-weight:700}
+.logo .places{font-size:8.5px;letter-spacing:.8px;color:var(--navy-muted);white-space:nowrap}
+.btitle{position:relative;padding:14px 0}
+.btitle h1{margin:0;font-size:30px;font-weight:700;line-height:1.15;color:var(--navy-ink)}
+.btitle p{margin:4px 0 0;font-size:17px;color:var(--navy-muted)}
+.bnote{position:relative;padding:0 22px;text-align:right;font-size:14px;font-style:italic;color:var(--navy-ink);text-shadow:0 1px 3px rgba(0,0,0,.4);align-self:end;padding-bottom:16px}
+/* body: sidebar + main */
+.layout{display:grid;grid-template-columns:230px minmax(0,1fr);min-height:600px}
+.side{background:var(--navy);color:var(--navy-ink);display:flex;flex-direction:column;padding:14px 0 20px}
+.side .navlist{display:flex;flex-direction:column;gap:2px;position:sticky;top:8px}
+.side button.nav{display:grid;grid-template-columns:22px 1fr;gap:2px 12px;align-items:center;text-align:left;width:100%;padding:11px 18px;
+  background:transparent;border:none;color:var(--navy-ink);cursor:pointer;font-size:15px;font-weight:600;border-left:4px solid transparent;min-height:auto;border-radius:0}
+.side button.nav small{grid-column:2;font-size:12.5px;font-weight:500;color:var(--navy-muted)}
+.side button.nav svg{width:20px;height:20px;grid-row:1 / span 2;opacity:.9}
+.side button.nav:hover{background:rgba(255,255,255,.06)}
+.side button.nav[aria-selected="true"]{background:var(--navy-active);border-left-color:#9cc0ff;color:#fff}
+.side button.nav[aria-selected="true"] small{color:#dfe8ff}
+.side .sep{height:1px;background:rgba(255,255,255,.12);margin:12px 18px}
+.side .quick{display:flex;flex-direction:column}
+.side .quick a{color:var(--navy-ink);text-decoration:none;font-size:14px;font-weight:500;padding:8px 18px 8px 52px;position:relative}
+.side .quick a::before{content:"";position:absolute;left:24px;top:50%;width:8px;height:8px;margin-top:-4px;border-radius:2px;border:1.5px solid var(--navy-muted)}
+.side .quick a:hover{background:rgba(255,255,255,.06)}
+.side .quote{margin-top:auto;padding:24px 22px 0;font-size:14px;font-style:italic;color:var(--navy-muted);text-align:center;line-height:1.5}
+.side .quote span{display:block;font-style:normal;margin-top:4px;color:var(--navy-ink)}
+.main{min-width:0;padding:16px 20px 20px}
+.main .panel{gap:16px}
+/* filter bar */
+.filters{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px 22px;padding:2px 2px 4px}
+.filters label{display:flex;align-items:center;gap:10px;font-size:13.5px;font-weight:600;color:var(--ink-2)}
+.filters select{font:inherit;font-size:14px;font-weight:500;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 28px 8px 10px;min-width:150px;min-height:40px}
+.filters .upd{margin-left:auto;font-size:12.5px;color:var(--muted);text-align:right;line-height:1.35}
+.filters .upd b{color:var(--ink-2);font-weight:600}
+.filters .btn{background:var(--navy);color:#fff}
+/* overview grid */
+.ovgrid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:16px}
+.ovgrid>*{min-width:0}
+.span5{grid-column:span 5}.span7{grid-column:span 7}.span4{grid-column:span 4}.span3{grid-column:span 3}.span12{grid-column:1 / -1}
+.card{border-radius:12px;padding:16px 18px}
+.card h2.ct,.card>h2{font-size:18px;font-weight:700}
+.card .sub{font-size:13.5px;margin:2px 0 10px}
+/* gauge card */
+.gwrap{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:16px;align-items:start;margin-top:8px}
+.gauge{position:relative;max-width:300px;margin:0 auto}
+.gauge svg{display:block;width:100%;height:auto}
+.gauge .gn{position:absolute;left:0;right:0;bottom:0;text-align:center;line-height:1}
+.gauge .gn b{font-family:var(--f-display);font-size:clamp(44px,5vw,64px);font-weight:700;font-variant-numeric:tabular-nums;color:var(--ink)}
+.gauge .gn span{font-size:16px;color:var(--muted)}
+.glevel{text-align:center;font-weight:800;letter-spacing:1.5px;font-size:19px;margin-top:10px;text-transform:uppercase}
+.gsent{text-align:center;margin:6px auto 0;font-size:14px;color:var(--ink-2);max-width:34ch}
+.gbox{background:var(--surface-2);border-radius:10px;padding:10px 14px}
+.gbox+.gbox{margin-top:10px}
+.gbox .gk{font-size:13px;font-weight:600;color:var(--ink-2)}
+.gbox .gv{font-size:20px;font-weight:700;margin-top:2px;font-variant-numeric:tabular-nums}
+.gbox .gk2{font-size:12.5px;color:var(--muted)}
+.guide{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:4px;font-size:13px}
+.guide li{white-space:nowrap;display:grid;grid-template-columns:12px 50px 1fr;gap:8px;align-items:center;font-variant-numeric:tabular-nums;color:var(--ink-2);border-radius:6px;padding:1px 4px}
+.guide li i{width:12px;height:12px;border-radius:50%}
+.guide li.on{background:var(--surface);color:var(--ink);font-weight:700;box-shadow:0 0 0 1px var(--line)}
+.gfoot{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;justify-content:space-between;margin-top:10px;font-size:13.5px;color:var(--ink-2)}
+.gfoot details.more{margin:0}
+/* why panel */
+.wrow{display:grid;grid-template-columns:30px minmax(0,1fr) 76px;gap:12px;align-items:center;padding:9px 0;border-top:1px solid var(--line)}
+.wrow:first-of-type{border-top:none}
+.wrow .n{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff}
+.wrow .wt{font-size:14px;line-height:1.4;color:var(--ink-2);min-width:0}
+.wrow .wt b{color:var(--ink);font-weight:700}
+.wrow .wt .eff{font-weight:600}
+.wrow .pb{border-radius:8px;text-align:center;padding:5px 4px;font-weight:800;font-size:17px;line-height:1.05;font-variant-numeric:tabular-nums;border:1px solid}
+.wrow .pb small{display:block;font-size:11px;font-weight:600}
+.wrow .pb.up{background:var(--pos-soft);color:var(--pos);border-color:color-mix(in srgb,var(--pos) 35%,transparent)}
+.wrow .pb.down{background:var(--neg-soft);color:var(--neg);border-color:color-mix(in srgb,var(--neg) 35%,transparent)}
+.wrow .pb.zero{color:var(--muted);border-color:var(--line)}
+.wrow.click{cursor:pointer;border-radius:6px} .wrow.click:hover{background:var(--surface-2)}
+.wrow .xtra{grid-column:2 / -1;font-size:13px;color:var(--ink-2);line-height:1.55}
+.wrow.is-hidden{display:none}
+.wtally{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:13.5px;color:var(--ink-2);border-top:1px solid var(--line);padding-top:10px;margin-top:4px}
+.wtally b{font-variant-numeric:tabular-nums}
+.wtally .tn{margin-left:auto;color:var(--ink)}
+/* key indicators table */
+table.ki{width:100%;border-collapse:collapse;font-size:13.5px}
+table.ki th{font-size:12px;font-weight:600;color:var(--muted);text-align:left;padding:6px 6px;border-bottom:1px solid var(--line)}
+table.ki td{padding:6px 5px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums;vertical-align:middle}
+table.ki tr.grp td{background:var(--surface-2);font-weight:700;font-size:12.5px;color:var(--ink);padding:5px 6px}
+table.ki tr.grp td span{font-weight:500;color:var(--muted)}
+table.ki .num{text-align:right}
+table.ki .tr{font-size:12px;color:var(--ink-2);line-height:1.3}
+table.ki td:first-child{line-height:1.25}
+table.ki .tr .a{font-weight:700}
+.pbadge{display:inline-block;min-width:46px;text-align:center;font-weight:700;font-size:12.5px;border-radius:5px;padding:2px 6px}
+.pbadge.up{background:var(--pos-soft);color:var(--pos)} .pbadge.down{background:var(--neg-soft);color:var(--neg)}
+/* regional bars */
+.rbars{display:flex;align-items:flex-end;justify-content:space-around;gap:10px;height:190px;padding:8px 4px 0;border-bottom:1.5px solid var(--baseline);position:relative}
+.rbars .ref{position:absolute;left:0;right:0;border-top:1.5px dashed var(--baseline)}
+.rbars .ref span{position:absolute;right:0;top:-18px;font-size:11.5px;color:var(--muted)}
+.rbar{flex:1;max-width:64px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;cursor:pointer;background:none;border:none;padding:0}
+.rbar b{font-size:14px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;margin-bottom:4px}
+.rbar i{display:block;width:100%;border-radius:4px 4px 0 0;background:var(--baseline)}
+.rbar.ep i{background:var(--critical)} .rbar.sel i{background:var(--accent)}
+.rlabels{display:flex;justify-content:space-around;gap:10px;padding:6px 4px 0}
+.rlabels span{flex:1;max-width:64px;text-align:center;font-size:12px;color:var(--ink-2);line-height:1.2}
+.rcap{font-size:13px;color:var(--ink-2);margin-top:10px}
+/* views */
+.views{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.view{display:flex;flex-direction:column;gap:6px}
+.view .vh{display:flex;align-items:center;gap:10px;font-weight:700;color:var(--accent);font-size:15.5px}
+.view .vh svg{width:26px;height:26px;flex:none}
+.view .vq{font-weight:700;font-size:14.5px;color:var(--ink)}
+.view p{margin:0;font-size:13.5px;color:var(--ink-2)}
+.view a.cta{margin-top:auto;align-self:flex-start;display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--accent);color:var(--accent);border-radius:8px;padding:7px 16px;font-size:13.5px;font-weight:600;text-decoration:none;min-height:38px}
+.view a.cta:hover{background:var(--accent-soft)}
+.main footer.sources{margin-top:18px}
+@media (max-width:1240px){
+  .span5,.span7{grid-column:span 6}.span4{grid-column:span 6}.span3{grid-column:span 6}
+  .histcard{grid-column:1 / -1}
+}
+@media (max-width:980px){
+  .banner{grid-template-columns:1fr;gap:0}
+  .logo{flex-direction:row;justify-content:flex-start;gap:10px;border-right:none;padding:14px 16px 0;height:auto}
+  .logo svg{width:44px;height:22px} .logo .places{display:none}
+  .btitle{padding:6px 16px 16px} .btitle h1{font-size:22px} .btitle p{font-size:14.5px}
+  .bnote{display:none} .banner .skyline{width:100%;opacity:.45}
+  .layout{grid-template-columns:1fr}
+  .side{padding:0;position:sticky;top:env(safe-area-inset-top,0px);z-index:30}
+  .side .navlist{flex-direction:row;position:static;gap:0}
+  .side button.nav{grid-template-columns:1fr;justify-items:center;padding:9px 4px;font-size:13.5px;border-left:none;border-bottom:3px solid transparent;gap:2px}
+  .side button.nav svg{grid-row:auto;width:18px;height:18px}
+  .side button.nav small{display:none}
+  .side button.nav[aria-selected="true"]{border-bottom-color:#9cc0ff}
+  .side .sep,.side .quick,.side .quote{display:none}
+  .main{padding:14px 12px}
+  .span5,.span7,.span4,.span3{grid-column:1 / -1}
+  .views{grid-template-columns:1fr}
+  .filters .upd{margin-left:0;text-align:left}
+}
+@media (max-width:560px){
+  .app{padding-inline:0;padding-block:0}
+  .shell{border-radius:0;border:none}
+  .gwrap{grid-template-columns:1fr}
+  .filters label{width:100%;justify-content:space-between}
+  .filters select{flex:1;min-width:0}
+  .wrow{grid-template-columns:28px minmax(0,1fr) 64px;gap:10px}
+}
+</style>
+
+<div class="app"><div class="shell">
+<header class="banner">
+  <div class="skyline" aria-hidden="true">
+    <svg viewBox="0 0 800 120" preserveAspectRatio="xMaxYMax slice">
+      <defs>
+        <linearGradient id="skyfade" x1="0" x2="1" y1="0" y2="0"><stop offset="0" style="stop-color:var(--navy);stop-opacity:1"/><stop offset=".35" style="stop-color:var(--navy);stop-opacity:0"/></linearGradient>
+        <linearGradient id="mtn1" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#3d5a8c"/><stop offset="1" stop-color="#22385f"/></linearGradient>
+        <linearGradient id="mtn2" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#2b4372"/><stop offset="1" stop-color="#1a2c4f"/></linearGradient>
+        <linearGradient id="glow" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#5b7fb8" stop-opacity="0"/><stop offset="1" stop-color="#f2b766" stop-opacity=".35"/></linearGradient>
+      </defs>
+      <rect x="0" y="40" width="800" height="80" fill="url(#glow)"/>
+      <path d="M120 120 L190 78 L235 92 L300 52 L345 70 L392 38 L430 58 L470 30 L520 62 L560 48 L610 74 L660 60 L720 86 L800 70 L800 120 Z" fill="url(#mtn1)"/>
+      <path d="M60 120 L150 96 L230 104 L300 84 L380 98 L450 80 L540 94 L620 86 L700 100 L800 92 L800 120 Z" fill="url(#mtn2)"/>
+      <g fill="#0f1c36">
+        <rect x="330" y="98" width="10" height="22"/><rect x="342" y="92" width="8" height="28"/><rect x="352" y="102" width="12" height="18"/>
+        <rect x="366" y="86" width="9" height="34"/><rect x="377" y="96" width="14" height="24"/><rect x="393" y="90" width="7" height="30"/>
+        <rect x="402" y="100" width="16" height="20"/><rect x="420" y="94" width="10" height="26"/><rect x="432" y="104" width="22" height="16"/>
+        <rect x="456" y="99" width="9" height="21"/><rect x="467" y="106" width="30" height="14"/>
+      </g>
+      <g fill="#ffd48a" opacity=".55">
+        <rect x="368" y="92" width="2" height="2"/><rect x="368" y="100" width="2" height="2"/><rect x="344" y="98" width="2" height="2"/>
+        <rect x="395" y="96" width="2" height="2"/><rect x="423" y="100" width="2" height="2"/><rect x="458" y="104" width="2" height="2"/>
+      </g>
+      <rect x="0" y="0" width="800" height="120" fill="url(#skyfade)"/>
+    </svg>
+  </div>
+  <div class="logo">
+    <svg viewBox="0 0 120 30" aria-hidden="true"><path d="M4 27 L30 8 L42 17 L58 3 L76 19 L88 11 L116 27" fill="none" stroke="#dfe8ff" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/><path d="M52 8 L58 3 L64 9" fill="none" stroke="#8fb6ff" stroke-width="2.2" stroke-linecap="round"/></svg>
+    <div class="wm">BORDER<b>PULSE</b></div>
+    <div class="places">EL PASO · CIUDAD JUÁREZ · LAS CRUCES</div>
+  </div>
+  <div class="btitle">
+    <h1>Borderplex Economic Early-Warning Dashboard</h1>
+    <p>Local signals. Clear insights. A stronger tomorrow.</p>
+  </div>
+  <div class="bnote">Data for a stronger<br>El Paso region.</div>
+</header>
+
+<div class="layout">
+<aside class="side">
+  <nav class="navlist" id="tabnav" aria-label="Sections">
+    <button type="button" class="nav" data-tab="overview" aria-selected="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 11 12 4l9 7v9h-6v-6H9v6H3z"/></svg>Overview<small>This month at a glance</small></button>
+    <button type="button" class="nav" data-tab="indicators">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 20V11M12 20V5M19 20v-7"/></svg>Indicators<small>Jobs, border &amp; housing</small></button>
+    <button type="button" class="nav" data-tab="sectors">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 20V9l5 3V9l5 3V5h6v15z"/></svg>Sectors<small>Jobs by industry</small></button>
+    <button type="button" class="nav" data-tab="research">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 5h6a2 2 0 0 1 2 2v13a2 2 0 0 0-2-2H4zM20 5h-6a2 2 0 0 0-2 2v13a2 2 0 0 1 2-2h6z"/></svg>Research<small>Does it work &amp; methods</small></button>
+  </nav>
+  <div class="sep"></div>
+  <div class="quick">
+    <a href="#doesitwork">Historical record</a>
+    <a href="#researchlab">Research Lab</a>
+    <a href="#datamethods">Methodology</a>
+    <a href="#pipelineData">Data on the way</a>
+  </div>
+  <div class="quote">“Better information today. A stronger El Paso tomorrow.”<span>— Marcus</span></div>
+</aside>
+
+<main class="main">
+<!-- ===================== OVERVIEW ===================== -->
+<div class="panel" id="p-overview">
+  <div class="filters">
+    <label for="fRegion">Region <select id="fRegion" title="More regions are planned"><option>El Paso (Borderplex)</option></select></label>
+    <label for="fCompare">Compare to <select id="fCompare"><option value="Texas">Texas</option><option value="United States">United States</option><option value="Las Cruces">Las Cruces</option></select></label>
+    <label for="fRange">Time range <select id="fRange"><option value="12">Last 1 year</option><option value="36" selected>Last 3 years</option><option value="120">Last 10 years</option><option value="0">All, since 2003</option></select></label>
+    <div class="upd" id="fUpd"></div>
+    <span id="briefDl" hidden><button class="btn" id="dlBrief" type="button">Download report</button></span>
+  </div>
+
+  <div class="ovgrid">
+    <section class="card span5" id="gaugeCard">
+      <h2 class="ct">El Paso economic pressure score</h2>
+      <div class="gwrap">
+        <div>
+          <div class="gauge" id="gauge"></div>
+          <div class="glevel" id="gLevel"></div>
+          <p class="gsent" id="ovHead"></p>
+        </div>
+        <div>
+          <div class="gbox"><div class="gk">Change from last month</div><div class="gv" id="gChange"></div><div class="gk2" id="g3m"></div></div>
+          <div class="gbox"><div class="gk">Level guide</div><ul class="guide" id="gGuide"></ul></div>
+        </div>
+      </div>
+      <div class="gfoot"><span id="ovStatus"></span>
+        <details class="more" id="ovRange"><summary>How precise is this number?</summary><div id="ovRangeTxt"></div></details></div>
+    </section>
+
+    <section class="card span7" id="why">
+      <h2 class="ct" id="whyTitle">Why is the score where it is?</h2>
+      <div class="sub" id="whySub"></div>
+      <div id="whyRows"></div>
+    </section>
+
+    <section class="card span4" id="keyind">
+      <h2 class="ct">Key indicators</h2>
+      <div class="sub" id="kiSub"></div>
+      <div class="overflow"><table class="ki" id="kiTable">
+        <thead><tr><th>Indicator</th><th class="num">Latest</th><th>vs typical</th><th class="num">Points</th></tr></thead><tbody></tbody></table></div>
+    </section>
+
+    <section class="card span5 histcard">
+      <div class="head" style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:flex-start">
+        <div><h2 class="ct" style="margin:0">El Paso economic pressure score over time</h2><div class="sub" id="histSub">Shaded bands are the four levels.</div></div>
+        <div class="seg" id="histTabs" role="group" aria-label="Time range">
+          <button type="button" data-months="12">1 yr</button>
+          <button type="button" data-months="36" aria-selected="true">3 yrs</button>
+          <button type="button" data-months="120">10 yrs</button>
+          <button type="button" data-months="0">All</button>
+        </div>
+      </div>
+      <div class="chartbox" id="histChart"></div>
+    </section>
+
+    <section class="card span3" id="regcard">
+      <h2 class="ct">Regional comparison</h2>
+      <div class="sub">Labor pressure score, each place against its own history. Dashed line = 50, typical.</div>
+      <div class="rbars" id="rBars"></div>
+      <div class="rlabels" id="rLabels"></div>
+      <div class="rcap" id="rCap"></div>
+    </section>
+
+    <section class="views span12" id="views"></section>
+
+    <section class="card span12" id="changed">
+      <h2 id="chgTitle">What moved the score since last month</h2>
+      <div class="sub" id="chgSub"></div>
+      <div id="chgRows"></div>
+    </section>
+
+    <section class="card span12" id="coverage">
+      <h2>Data coverage</h2>
+      <div class="sub">Each indicator is published on its own schedule. The headline uses the latest month in which all seven have reported.</div>
+      <div class="cov">
+        <div class="covsum" id="covSum"></div>
+        <div class="overflow"><table class="t" id="covTable">
+          <thead><tr><th>Indicator</th><th>Latest month</th><th>Typical delay</th><th>Last 6 months</th></tr></thead><tbody></tbody></table></div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- ===================== INDICATORS ===================== -->
+<div class="panel" id="p-indicators" hidden>
+  <section class="card" id="indList">
+    <h2>The seven indicators in the score</h2>
+    <div class="sub">Each row: the latest value, the period it compares, its reference month, how it compares with El Paso’s typical reading, and where it comes from.</div>
+    <div id="indRows"></div>
+  </section>
+
+  <section class="card" id="regional">
+    <h2>How El Paso compares with its neighbors</h2>
+    <div class="sub">Labor-market pressure score for each place, judged against that place’s own history (50 = typical). Texas, the U.S. and Las Cruces use unemployment momentum only; El Paso’s line is its labor layer, which also includes payroll growth.</div>
+    <div style="margin:0 0 10px"><span class="badge" id="divergeBadge"><span class="dot"></span><span id="divergeText"></span></span></div>
+    <div class="cmpbars" id="cmpBars" aria-label="Latest labor pressure score by place"></div>
+    <div class="legend" id="cmpLegend"></div>
+    <div class="chartbox" id="cmpChart"></div>
+    <div class="note" id="divergeRule"></div>
+  </section>
+
+  <section class="card" id="chain">
+    <h2>How a border shock reaches El Paso</h2>
+    <div class="sub">Three links in the chain, each shown as the latest year-over-year change in 3-month totals (smoothing one-off reporting spikes). National trade is mostly freight passing through; crossings and local jobs show what lands here. Context only: none of these enter the score.</div>
+    <div class="chain" id="chainSteps"></div>
+    <div class="callout" id="chainRead"></div>
+    <div class="head" style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center">
+      <div class="legend" id="chainLegend" style="margin:0"></div>
+      <div class="seg" id="chainTabs" role="group" aria-label="Time range">
+        <button type="button" data-months="36" aria-selected="true">3 yrs</button>
+        <button type="button" data-months="0">Since 2016</button>
+      </div>
+    </div>
+    <div class="chartbox" id="chainChart" style="margin-top:8px"></div>
+    <div class="note" id="chainNote"></div>
+  </section>
+
+  <div class="row2">
+    <section class="card" id="border">
+      <h2>Border trade &amp; currency</h2>
+      <div class="sub">The border layer on its own, and what the research says about it as a leading signal.</div>
+      <div class="stats" style="grid-template-columns:1fr 1fr" id="borderStats"></div>
+      <div id="leadlagBox"></div>
+    </section>
+    <section class="card" id="watch">
+      <h2>Faster signals we watch</h2>
+      <div class="sub">Tracked next to the score. None enters it unless a published back-test shows it helps.</div>
+      <div class="overflow"><table class="t" id="watchTable">
+        <thead><tr><th>Indicator</th><th class="num">Distance from typical (SD)</th><th>Status</th></tr></thead><tbody></tbody></table></div>
+    </section>
+  </div>
+
+  <section class="card" id="pipelineData">
+    <h2>Data on the way</h2>
+    <div class="sub">Indicators being added, why each matters, and where it stands. Each enters as a watch series first.</div>
+    <div class="overflow"><table class="t" id="pipeTable">
+      <thead><tr><th>Indicator</th><th>Why it matters</th><th>Source</th><th>Status</th></tr></thead><tbody></tbody></table></div>
+  </section>
+</div>
+
+<!-- ===================== SECTORS ===================== -->
+<div class="panel" id="p-sectors" hidden>
+  <section class="card" id="sectors">
+    <h2>Where is employment growing?</h2>
+    <div class="sub" id="secSub">El Paso payroll jobs by industry, ranked by growth from a year earlier. Select a sector for its history. Descriptive only: sectors do not enter the score.</div>
+    <div class="keyrow"><span class="k"><span class="sw" style="background:var(--accent)"></span>Growing</span><span class="k"><span class="sw" style="background:var(--pos)"></span>Shrinking</span></div>
+    <div class="sechead-row" aria-hidden="true"><span>Sector · reference month</span><span>Change from a year earlier</span><span style="text-align:right">YoY</span><span>Jobs · 6-mo pace</span></div>
+    <div id="secRows"></div>
+  </section>
+</div>
+
+<!-- ===================== RESEARCH ===================== -->
+<div class="panel" id="p-research" hidden>
+  <nav class="subnav" aria-label="Research sections">
+    <a href="#doesitwork">Does it work?</a><a href="#onset">Warning or detection</a><a href="#benchmarks">Benchmarks</a>
+    <a href="#bordertest">Border-layer test</a><a href="#outlook">What usually follows</a><a href="#scoredetail">Score details</a>
+    <a href="#inference">Uncertainty</a><a href="#researchlab">Research Lab</a><a href="#datamethods">Data &amp; methods</a>
+  </nav>
+
+  <section class="card" id="doesitwork">
+    <h2>Does it work? Historical early-warning record</h2>
+    <div class="verdicts" id="verdicts"></div>
+    <p class="note" id="vintro"></p>
+    <div class="stats" id="vstats"></div>
+    <h3 class="h3">Back-test score with real downturns shaded</h3>
+    <div class="sub" style="margin-bottom:6px">Rebuilt month by month using only data that had been published at the time. Shaded windows are El Paso deterioration events; the dashed line is the 65 alert level.</div>
+    <div class="chartbox" id="valChart"></div>
+    <div class="vgrid">
+      <div>
+        <h3 class="h3">Case study: early 2020</h3>
+        <div class="overflow"><table class="t" id="covidCase">
+          <thead><tr><th>Month</th><th class="num">Same-month data</th><th class="num">As publishable</th></tr></thead><tbody></tbody></table></div>
+        <div class="note">“Same-month data” scores each month with that month’s figures, the way the Overview works. “As publishable” uses only data released by then. With real publication delays the alert came in April 2020, one month after the shock.</div>
+        <h3 class="h3">Every alert at 65 or above</h3>
+        <div class="overflow"><table class="t" id="epiTable">
+          <thead><tr><th>Alert fired</th><th class="num">Score</th><th>Deterioration followed?</th><th class="num">Lead</th></tr></thead><tbody></tbody></table></div>
+        <h3 class="h3">Deterioration events, 2003–2025</h3>
+        <div class="overflow"><table class="t" id="evTable">
+          <thead><tr><th>Event window</th><th>Caught at 65?</th></tr></thead><tbody></tbody></table></div>
+      </div>
+      <div>
+        <h3 class="h3">Index vs. models, out of sample 2013–2025</h3>
+        <div class="sub" style="margin:0 0 4px">Month-level and secondary: neighboring months are not independent.</div>
+        <div class="overflow"><table class="t" id="cmpTable">
+          <thead><tr><th>Model</th><th class="num">Recall</th><th class="num">Precision</th><th class="num">False-alarm</th><th class="num">ROC-AUC</th></tr></thead><tbody></tbody></table></div>
+        <h3 class="h3">Alert-level sensitivity (exploratory)</h3>
+        <div class="overflow"><table class="t" id="thTable">
+          <thead><tr><th class="num">Alert at</th><th class="num">Recall</th><th class="num">Precision</th><th class="num">False-alarm</th></tr></thead><tbody></tbody></table></div>
+      </div>
+    </div>
+    <div class="callout" id="vhonest"></div>
+    <p class="note" id="vmethod"></p>
+  </section>
+
+  <section class="card" id="onset">
+    <h2>Warning before a downturn, or spotting one already under way?</h2>
+    <div class="sub" id="onSub"></div>
+    <div class="verdicts" id="onVerdict"></div>
+    <div class="overflow"><table class="t" id="onTable">
+      <thead><tr><th>Downturn start</th><th>Alert rule</th><th>Result</th><th class="num">Timing</th></tr></thead><tbody></tbody></table></div>
+    <div class="overflow"><table class="t" id="onSummary" style="margin-top:14px">
+      <thead><tr><th>Alert rule</th><th>Type of downturn</th><th class="num">Warned before</th><th class="num">Spotted after</th><th class="num">Missed</th><th class="num">False-alarm episodes</th></tr></thead><tbody></tbody></table></div>
+    <div class="note" id="onNote"></div>
+  </section>
+
+  <section class="card" id="benchmarks">
+    <h2>Does the index beat simpler rules?</h2>
+    <div class="sub">Episode-level comparison with transparent rules on the same real-time information. 95% intervals are exact (Clopper–Pearson).</div>
+    <div class="overflow"><table class="t" id="benchTable">
+      <thead><tr><th>Alert rule</th><th class="num">Alert episodes</th><th class="num">True warnings</th><th class="num">Unemployment events caught</th><th class="num">Payroll downturns caught</th><th>Episode precision, 95% CI</th></tr></thead><tbody></tbody></table></div>
+    <div class="note" id="benchNote"></div>
+  </section>
+
+  <section class="card" id="bordertest">
+    <h2>Border-layer test: trade vs. crossings</h2>
+    <div class="sub" id="btSub"></div>
+    <div class="verdicts" id="btVerdict"></div>
+    <div class="overflow"><table class="t" id="btTable">
+      <thead><tr><th>Border layer</th><th>Sample</th><th class="num">Unemployment AUC</th><th class="num">vs published, 95% CI</th><th class="num">Payroll AUC</th><th class="num">vs published, 95% CI</th><th class="num">Alert episodes</th></tr></thead><tbody></tbody></table></div>
+    <div class="note" id="btNote"></div>
+  </section>
+
+  <section class="card" id="outlook">
+    <h2>What usually follows a month like this</h2>
+    <div class="sub" id="outlooksub"></div>
+    <div class="overflow"><table class="t" id="outlookTable">
+      <thead><tr><th>Event</th><th class="num">Within 3 mo</th><th class="num">6 mo</th><th class="num">12 mo</th><th>How well the score ranks it (ROC-AUC)</th></tr></thead><tbody></tbody></table></div>
+    <div class="note">Bars are historical frequencies for months in the same score band (2003–2025). The dark tick is the long-run base rate, so a bar short of its tick means “less often than an average month.” Bars run 0–50%. Model rows are a regularized logistic estimate from the same indicators. Six downturns is a small sample: read these as rough odds, not forecasts.</div>
+  </section>
+
+  <section class="card" id="scoredetail">
+    <h2>Score details</h2>
+    <div class="sub">Each indicator’s distance from its typical value in standard deviations (z), clipped at ±3, and its exact share of the distance from 50.</div>
+    <div id="drivers"></div>
+    <div class="note" id="decompNote"></div>
+    <h3 class="h3">Back-test through COVID-19</h3>
+    <div class="sub" style="margin-bottom:6px">What the score would have shown, Sep 2019 – Dec 2020, with no future data.</div>
+    <div class="chartbox" id="covidChart"></div>
+  </section>
+
+  <section class="card" id="inference">
+    <h2>How much survives honest uncertainty?</h2>
+    <p class="note" style="margin-top:4px">Every number in “Does it work?” is a point estimate from one history in which neighboring months are related. This section re-estimates the main claims with methods that allow for that: a moving-block bootstrap, a circular-shift placebo test, Newey–West (HAC) standard errors with a Bonferroni family for the lead/lag correlations, calibration tables with Wilson intervals, and a grid of alternative conventions. Seed 42; reproduced by <code>inference.py</code>.</p>
+    <div id="inferReading" class="callout"></div>
+    <div class="vgrid">
+      <div>
+        <h3 class="h3">Block-bootstrap intervals (1,000 draws, 12-month blocks)</h3>
+        <div class="overflow"><table class="t small" id="bootTable">
+          <thead><tr><th>Metric</th><th class="num">Index</th><th class="num">95% CI</th><th class="num">Sahm</th><th class="num">95% CI</th><th class="num">Index − Sahm</th><th class="num">95% CI</th></tr></thead><tbody></tbody></table></div>
+        <h3 class="h3">Episode-level rates, alert at 65</h3>
+        <div class="overflow"><table class="t small" id="epBootTable">
+          <thead><tr><th>Target</th><th class="num">Alert episodes</th><th class="num">Precision</th><th class="num">Bootstrap 95%</th><th class="num">Recall</th><th class="num">Bootstrap 95%</th></tr></thead><tbody></tbody></table></div>
+        <h3 class="h3">Placebo (circular time-shift) tests</h3>
+        <div class="overflow"><table class="t small" id="placeboTable">
+          <thead><tr><th>Test</th><th class="num">Observed AUC</th><th class="num">Null mean</th><th class="num">Null 95%</th><th class="num">p (AUC)</th><th class="num">p (events)</th></tr></thead><tbody></tbody></table></div>
+      </div>
+      <div>
+        <h3 class="h3">Lead/lag correlations with HAC inference</h3>
+        <div class="overflow"><table class="t small" id="hacTable">
+          <thead><tr><th>Indicator → El Paso payroll growth</th><th class="num">r at 0</th><th class="num">p (HAC)</th><th class="num">Best lead</th><th class="num">r</th><th class="num">p (HAC)</th><th class="num">p (Bonf.)</th><th>Holds at 5%?</th></tr></thead><tbody></tbody></table></div>
+        <h3 class="h3">Calibration: how often events followed, by score band</h3>
+        <div class="overflow"><table class="t small" id="calibTable">
+          <thead><tr><th>Band</th><th class="num">n</th><th class="num">Payroll downturn</th><th class="num">Unemp. +0.5pp</th></tr></thead><tbody></tbody></table></div>
+        <div class="note" id="calibNote"></div>
+      </div>
+    </div>
+    <h3 class="h3">Alternative conventions</h3>
+    <div class="stats" id="robStats"></div>
+    <div class="overflow"><table class="t small" id="robTable">
+      <thead><tr><th>Layer weights</th><th class="num">Configs</th><th class="num">Unemp. AUC (min–max)</th><th class="num">Payroll AUC (min–max)</th><th class="num">Fires 2008 &amp; 2020</th><th class="num">No other alerts</th></tr></thead><tbody></tbody></table></div>
+    <div class="note">Each configuration recomputes every z-score and the score from scratch (weights × minimum history 24/36/48 × z-clip 2/3/4 × publication delay shifted 0/+1 month), then reruns the alert and targets unchanged. The grid shows which claims depend on a convention, not a better model.</div>
+    <div id="vintageBox"></div>
+  </section>
+
+  <section class="card" id="researchlab">
+    <h2>Research Lab: build your own model</h2>
+    <p class="note" style="margin-top:4px">Recombine the published, delay-adjusted z-scores with your own weights, indicators, downturn definition and alert level, then see how your rule would have done, episode by episode, 2003–2025. Every z-score uses data through its own month only, so anything you build here has no look-ahead. Try: find weights that fire in 2019, then explain why that is overfitting; or drop the trade indicators and watch 2008.</p>
+    <div class="labwrap">
+      <div class="labctl">
+        <h3>Model</h3>
+        <label for="wLabor">Labor weight <b id="wLaborV"></b></label>
+        <input type="range" id="wLabor" min="0" max="100" step="5" value="40">
+        <label for="wBorder">Trade &amp; currency weight <b id="wBorderV"></b></label>
+        <input type="range" id="wBorder" min="0" max="100" step="5" value="35">
+        <label for="wHouse">Housing weight <b id="wHouseV"></b></label>
+        <input type="range" id="wHouse" min="0" max="100" step="5" value="25">
+        <label>Indicators included</label>
+        <div class="labind" id="labInd"></div>
+        <h3 style="margin-top:14px">Downturn definition</h3>
+        <label for="labTarget">Target</label>
+        <select id="labTarget">
+          <option value="ur">Unemployment rises by at least the threshold within the horizon</option>
+          <option value="emp">Payroll growth from a year earlier turns negative within the horizon</option>
+        </select>
+        <label for="labThr">Unemployment threshold <b id="thrV"></b></label>
+        <input type="range" id="labThr" min="0.3" max="1.0" step="0.1" value="0.5">
+        <label for="labHor">Horizon <b id="horV"></b></label>
+        <input type="range" id="labHor" min="3" max="12" step="3" value="6">
+        <label for="labAlert">Alert when score is at least <b id="alertV"></b></label>
+        <input type="range" id="labAlert" min="50" max="80" step="1" value="65">
+        <div class="dlrow">
+          <button class="btn ghost" id="labReset" type="button">Reset to published model</button>
+          <button class="btn" id="labExport" type="button" hidden>Download results (CSV)</button>
+        </div>
+      </div>
+      <div>
+        <div class="stats" style="grid-template-columns:repeat(auto-fit,minmax(120px,1fr));margin-top:0" id="labStats"></div>
+        <div class="legend"><span class="key static"><span class="swatch" style="background:var(--baseline)"></span>Published model</span>
+          <span class="key static"><span class="swatch" style="background:var(--accent)"></span>Your model</span></div>
+        <div class="chartbox" id="labChart"></div>
+        <div class="note">Shaded windows are downturns under your definition; the dashed line is your alert level. A handful of events cannot validate a model: the lab is for building intuition and seeing overfitting.</div>
+        <div class="configstr" id="labConfig"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card prose" id="datamethods">
+    <h2>Data &amp; methods</h2>
+    <p id="dmIntro"></p>
+    <div class="dlrow" id="dmDownloads" hidden>
+      <button class="btn" id="dlTidy" type="button">Download full dataset (CSV)</button>
+      <button class="btn ghost" id="dlMonthly" type="button">Download back-test table (CSV)</button>
+      <button class="btn ghost" id="dlNote" type="button" hidden>Download technical note (.md)</button>
+    </div>
+    <div class="note" id="dmDlNote"></div>
+    <h3 class="h3">How the score works</h3>
+    <p id="methodintro"></p>
+    <div class="cols">
+      <div><b>Labor (40%)</b>: El Paso unemployment, change over 6 months; total payroll jobs, growth from a year earlier.</div>
+      <div><b>Trade &amp; currency (35%)</b>: U.S. imports from and exports to Mexico, growth from a year earlier; peso/dollar, 6-month move.</div>
+      <div><b>Housing (25%)</b>: active home listings and median days on market, change from a year earlier. A for-sale market measure, not household finances.</div>
+      <div><b>No look-ahead</b>: every z-score uses only history up to its own month, so the back-test is honest.</div>
+    </div>
+    <p><b>Reading the levels:</b> 50 is a typical month for El Paso. Below 35 Calm · 35–50 Near normal · 50–65 Above normal · 65 and up High (the alert zone). The score is an index, not a probability: 40 does not mean a 40% chance of anything.</p>
+    <p id="dmRepro" style="font-size:var(--fs-s)"></p>
+    <h3 class="h3">Formulas</h3>
+    <p style="font-size:var(--fs-s)">For each indicator, the raw series becomes a pressure signal s(t) (6-month difference or percent change, or 12-month change; see the dictionary), standardized as z(t) = clip((s(t) − mean(s(1..t))) / sd(s(1..t)), ±3) using only history through t (minimum 36 observations; 24 for the short housing series). Layer scores average their indicators’ z; the overall z is the weighted layer average (weights renormalized when a layer is absent); the displayed score is 100 / (1 + e^(−1.1·z)). The back-test rebuilds every z with publication delays (labor and housing t−1, trade t−2, peso t−0) so each month uses only information available then. Level decomposition and month-over-month attribution are exact in z and pro-rata in points; both ship in <code>borderpulse_output.json</code>.</p>
+    <h3 class="h3">Data manifest (SHA-256)</h3>
+    <div class="overflow"><table class="t small" id="manifestTable">
+      <thead><tr><th>File</th><th>Series</th><th>Span</th><th>Rows</th><th>Retrieved</th><th>SHA-256</th></tr></thead><tbody></tbody></table></div>
+    <div class="note" id="manifestNote"></div>
+    <h3 class="h3">Data dictionary</h3>
+    <div class="overflow"><table class="t small" id="dictTable">
+      <thead><tr><th>Series</th><th>Source</th><th>Transformation</th><th>Delay</th><th>First usable</th><th>Role</th></tr></thead><tbody></tbody></table></div>
+    <h3 class="h3">Constants and their status</h3>
+    <div class="overflow"><table class="t small" id="constTable">
+      <thead><tr><th>Constant</th><th>Value</th><th>Status</th><th>Sensitivity evidence</th></tr></thead><tbody></tbody></table></div>
+    <h3 class="h3">Limitations</h3>
+    <p style="font-size:var(--fs-s)" id="dmLimits"></p>
+    <p style="font-size:var(--fs-s)"><b>Known gaps and next data:</b> harmonized Juárez employment, building permits, sales-tax receipts, hotel occupancy, bankruptcy filings, unemployment claims and, with a partner’s anonymized data, food-assistance demand. Status is under “Data on the way” on the Indicators tab.</p>
+    <h3 class="h3">Version history</h3>
+    <div class="overflow"><table class="t small" id="verTable">
+      <thead><tr><th>Version</th><th>Date</th><th>Changes</th></tr></thead><tbody></tbody></table></div>
+    <p style="font-size:var(--fs-s);margin-top:14px" id="dmCite"></p>
+  </section>
+</div>
+
+<footer class="sources">
+  <b>Data:</b> FRED (Federal Reserve Bank of St.&nbsp;Louis): El Paso MSA unemployment (ELPA348UR), total nonfarm and sector payrolls (ELPA348*), Texas (TXUR), U.S. (UNRATE) and Las Cruces MSA (LASC735UR) unemployment, U.S.–Mexico goods imports (IMPMX) and exports (EXPMX), peso/dollar (EXMXUS); Realtor.com housing inventory for the El Paso CBSA (ACTLISCOU21340, MEDDAYONMAR21340); BTS Border Crossing/Entry Data, El Paso and Ysleta ports (data.bts.gov). Benchmarks: Dallas Fed El Paso Business-Cycle Index; local Sahm-rule analog after Sahm (2019). Related regional work: UTEP Border Region Modeling Project. <span id="footMeta"></span> An open research prototype: not official statistics, not investment advice.
+</footer>
+</main>
+</div>
+</div></div>
+
+<script>
+const DATA = /*__DATA__*/;
+const BENCH = /*__BENCH__*/;
+const LAB = /*__LAB__*/;
+const TIDY_CSV = /*__TIDY__*/;
+const MONTHLY_CSV = /*__MONTHLY__*/;
+const BRIEF_MD = /*__BRIEF__*/;
+const MANIFEST = /*__MANIFEST__*/;
+const TECHNOTE_MD = /*__TECHNOTE__*/;
+const HOR = /*__HORIZONS__*/;
+const LL  = /*__LEADLAG__*/;
+const INFER = /*__INFER__*/;
+const VINTAGE = /*__VINTAGE__*/;
+const BT = /*__BORDERTEST__*/;
+const ONSET = /*__ONSET__*/;
+const VAL = /*__VALIDATION__*/;
+
+/* =================== helpers =================== */
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MONTH_LONG=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const fmtMo = m => { const [y,mm]=m.split('-'); return MONTHS[+mm-1]+' ’'+y.slice(2); };
+const fmtMoLong = m => { const [y,mm]=m.split('-'); return MONTH_LONG[+mm-1]+' '+y; };
+const monthName = m => MONTH_LONG[+m.split('-')[1]-1];
+const madd=(m,k)=>{let[y,mm]=m.split('-').map(Number);mm+=k;y+=Math.floor((mm-1)/12);mm=((mm-1)%12+12)%12+1;return y+'-'+String(mm).padStart(2,'0');};
+const LEVELS=[
+  {name:'Calm',        lo:0,  hi:35, var:'--good'},
+  {name:'Near normal', lo:35, hi:50, var:'--level-mid'},
+  {name:'Above normal',lo:50, hi:65, var:'--serious'},
+  {name:'High',        lo:65, hi:100,var:'--critical'}];
+const LVT={'Calm':'--lvt-calm','Near normal':'--lvt-near','Above normal':'--lvt-above','High':'--lvt-high'};
+const levelOf = s => LEVELS.find(L=>s<L.hi) || LEVELS[3];
+const LAYER_NAME={'Local labor':'Labor','Border economy':'Trade & currency','Housing market':'Housing'};
+const LAYER_DESC={'Local labor':'El Paso jobs and unemployment','Border economy':'U.S.–Mexico trade and the peso','Housing market':'For-sale listings and time on market'};
+const el=(t,attrs={},parent)=>{const n=document.createElement(t);
+  for(const[k,v]of Object.entries(attrs))k==='text'?n.textContent=v:n.setAttribute(k,v);
+  if(parent)parent.appendChild(n);return n;};
+const svgel=(t,attrs={},parent)=>{const n=document.createElementNS('http://www.w3.org/2000/svg',t);
+  for(const[k,v]of Object.entries(attrs))n.setAttribute(k,v);
+  if(parent)parent.appendChild(n);return n;};
+const toPairs=obj=>Object.entries(obj||{}).sort((a,b)=>a[0]<b[0]?-1:1);
+const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+const sgn=(v,d=1)=>(v>0?'+':v<0?'−':'')+Math.abs(v).toFixed(d);
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+function chipFor(node, score, withRange){
+  const L=levelOf(score); node.style.borderColor='var('+L.var+')';
+  node.querySelector('.dot').style.background='var('+L.var+')';
+  node.querySelector('span:last-child').innerHTML=esc(L.name)+(withRange?' <small>'+L.lo+'–'+L.hi+'</small>':'');
+}
+function miniBar(td, v, scale, label, negativeIsStress){
+  const m=el('span',{class:'mini'},td);
+  const mb=el('span',{class:'mb'},m); el('span',{class:'mid'},mb);
+  const i=el('i',{},mb); const half=50, w=Math.min(Math.abs(v)/scale*half,half);
+  if(v>=0){i.style.left='50%';i.style.width=w+'%';} else {i.style.left=(half-w)+'%';i.style.width=w+'%';}
+  i.style.background=(negativeIsStress?v<0:v>0)?'var(--pos)':'var(--neg)';
+  el('span',{class:'mv',text:label},m);
+}
+function probBar(td, p, base){
+  const wrap=el('span',{class:'pbar'},td);
+  const t=el('span',{class:'pt'},wrap);
+  const i=el('i',{},t); i.style.width=Math.min(100,p/0.5*100).toFixed(1)+'%';
+  if(base!=null){ const b=el('b',{},t); b.style.left='calc('+Math.min(100,base/0.5*100).toFixed(1)+'% - 1px)'; b.title='long-run base rate '+(base*100).toFixed(0)+'%'; }
+  const v=el('span',{class:'pv'},wrap);
+  v.textContent=(p*100).toFixed(0)+'%';
+  if(base!=null) el('small',{text:' vs '+(base*100).toFixed(0)+'% base'},v);
+}
+function dotMatrix(td, k, n){
+  const d=el('span',{class:'dots'},td);
+  for(let j=0;j<n;j++) el('i',{class:j<k?'on':''},d);
+  el('span',{text:k+' of '+n},d);
+}
+function pill(box,c,t){ const p=el('span',{class:'vpill'},box); p.style.borderColor='var('+c+')';
+  const d=el('span',{class:'dot'},p); d.style.background='var('+c+')'; p.appendChild(document.createTextNode(t)); }
+/* show the first n rows, with a button for the rest */
+function expander(box, rows, n, noun){
+  if(rows.length<=n) return;
+  const b=el('button',{class:'morebtn',type:'button','aria-expanded':'false'},box);
+  const set=open=>{ rows.slice(n).forEach(r=>r.classList.toggle('is-hidden',!open));
+    b.setAttribute('aria-expanded',String(open)); b.textContent=open?'Show the top '+n+' only':'Show all '+rows.length+' '+noun; };
+  set(false); b.addEventListener('click',()=>set(b.getAttribute('aria-expanded')!=='true'));
+}
+/* downloads: the Claude downloads capability when granted, otherwise an ordinary browser download */
+let __saver=null;
+function getSaver(){
+  if(__saver) return __saver;
+  const browserSave=async({filename,data})=>{
+    const url=URL.createObjectURL(new Blob([data],{type:filename.endsWith('.csv')?'text/csv':'text/markdown'}));
+    const a=document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click();
+    setTimeout(()=>{URL.revokeObjectURL(url); a.remove();},1000);
+  };
+  const fallback={save:browserSave};
+  __saver=(window.claude&&typeof claude.use==='function')
+    ? claude.use('downloads').then(dl=>dl?{save:async o=>{ try{ await dl.save(o); }catch(e){ await browserSave(o); } }}:fallback).catch(()=>fallback)
+    : Promise.resolve(fallback);
+  return __saver;
+}
+
+/* =================== indicator vocabulary =================== */
+const INFO={
+  ep_ur_mom:  {short:'unemployment momentum',name:'El Paso unemployment rate',period:'change over 6 months',layer:'Local labor',series:'ELPA348UR',delay:'≈1 month',
+    val:d=>sgn(d.raw,1)+' pp',
+    read:d=>{const r=d.raw; return r===0?'El Paso unemployment is unchanged from six months ago':
+      'El Paso unemployment is '+(r>0?'up ':'down ')+Math.abs(r).toFixed(1)+' pp from six months ago';}},
+  ep_emp_yoy: {short:'payroll growth',name:'El Paso payroll jobs',period:'growth from a year earlier',layer:'Local labor',series:'ELPA348NAN',delay:'≈1 month',
+    val:d=>sgn(d.raw,1)+'%',
+    read:d=>'El Paso payrolls '+(d.raw>=0?'grew ':'shrank ')+Math.abs(d.raw).toFixed(1)+'% from a year ago'},
+  imports_yoy:{short:'imports from Mexico',name:'U.S. imports from Mexico',period:'growth from a year earlier',layer:'Border economy',series:'IMPMX',delay:'≈2 months',
+    val:d=>sgn(d.raw,0)+'%',
+    read:d=>'U.S. imports from Mexico are '+(d.raw>=0?'up ':'down ')+Math.abs(d.raw).toFixed(0)+'% from a year ago'},
+  exports_yoy:{short:'exports to Mexico',name:'U.S. exports to Mexico',period:'growth from a year earlier',layer:'Border economy',series:'EXPMX',delay:'≈2 months',
+    val:d=>sgn(d.raw,0)+'%',
+    read:d=>'U.S. exports to Mexico are '+(d.raw>=0?'up ':'down ')+Math.abs(d.raw).toFixed(0)+'% from a year ago'},
+  peso_mom:   {short:'the peso',name:'Peso against the dollar',period:'change over 6 months',layer:'Border economy',series:'EXMXUS',delay:'none',
+    val:d=>Math.abs(d.raw).toFixed(1)+'% '+(d.raw>0?'weaker':'stronger'),
+    read:d=>'the peso has '+(d.raw>0?'weakened ':'strengthened ')+Math.abs(d.raw).toFixed(1)+'% against the dollar over six months'},
+  listings_yoy:{short:'home listings',name:'Homes for sale (active listings)',period:'change from a year earlier',layer:'Housing market',series:'ACTLISCOU21340',delay:'under 1 month',
+    val:d=>sgn(d.raw,0)+'%',
+    read:d=>'active home listings are '+(d.raw>=0?'up ':'down ')+Math.abs(d.raw).toFixed(0)+'% from a year ago'},
+  dom_yoy:    {short:'days on market',name:'Days a home stays on the market',period:'change from a year earlier',layer:'Housing market',series:'MEDDAYONMAR21340',delay:'under 1 month',
+    val:d=>sgn(d.raw,0)+' days',
+    read:d=>{const r=d.raw; return r===0?'homes are taking as long to sell as a year ago':
+      'homes are selling '+Math.abs(r).toFixed(0)+' days '+(r>0?'slower':'faster')+' than a year ago';}},
+};
+const WHATIS={
+  ep_ur_mom:'The El Paso MSA seasonally adjusted unemployment rate compared with six months earlier. Rising unemployment adds pressure. Standardized against its own history since 2000; published about one month after the reference month.',
+  ep_emp_yoy:'Total nonfarm payroll jobs in the El Paso MSA (not seasonally adjusted), percent change from the same month a year earlier. Comparing with a year earlier removes the regular seasonal swings. Slower or negative growth adds pressure. Published about one month after the reference month.',
+  imports_yoy:'U.S. goods imports from Mexico (Census), percent change from a year earlier. Much of this trade crosses at El Paso–Juárez, so weaker imports signal border pressure. Most of it passes through the region rather than staying, so it measures the corridor more than local demand. Published about two months after the reference month.',
+  exports_yoy:'U.S. goods exports to Mexico (Census), percent change from a year earlier. Weaker exports signal border pressure. Published about two months after the reference month.',
+  peso_mom:'The peso/dollar exchange rate, percent change over six months. A weaker peso (more pesos per dollar) adds pressure because it reduces Mexican shoppers’ buying power in El Paso. Its apparent tendency to come before softer El Paso hiring does not survive a correction for testing many time lags (see Uncertainty under Research). Available with no delay.',
+  listings_yoy:'Active for-sale home listings in the El Paso metro (Realtor.com), percent change from a year earlier. A jump in listings signals a softening housing market. It measures the for-sale market, not household finances. The series starts in 2016, so it enters the score from 2018.',
+  dom_yoy:'Median days a home stays on the market in the El Paso metro (Realtor.com), change in days from a year earlier. Slower sales signal a softening housing market.',
+};
+const typTxt=(k,t)=>{ const a=Math.abs(t);
+  if(k==='peso_mom') return a<0.05?'about unchanged':(t>0?'weakens ':'strengthens ')+a.toFixed(1)+'%';
+  if(k==='dom_yoy'){ const r=Math.round(a); return r===0?'about the same pace':r+' day'+(r===1?'':'s')+(t<0?' faster':' slower'); }
+  if(k==='ep_ur_mom') return a<0.005?'about 0 pp':(t>0?'+':'−')+a.toFixed(2)+' pp';
+  return (t>0?'+':t<0?'−':'')+a.toFixed(1)+'%'; };
+const effectPts=p=>{ const a=Math.abs(p);
+  if(a<0.25) return 'Barely moves the score.';
+  if(p>0) return a>=3?'Adds a lot of pressure.':a>=1?'Adds some pressure.':'Adds a little pressure.';
+  return a>=3?'Eases pressure a lot.':a>=1?'Eases pressure somewhat.':'Eases pressure a little.'; };
+const effectZ=z=>{ const a=Math.abs(z); if(a<0.25) return 'About typical';
+  return (z>0?'Adds pressure':'Eases pressure')+(a>=1.5?', strongly':a>=0.5?', moderately':', slightly'); };
+
+const PTS=(DATA.decomposition&&DATA.decomposition.points_vs_neutral)||{};
+const scoredKeys=Object.keys(PTS), laggedDrivers=DATA.drivers.filter(d=>!(d.key in PTS));
+const upKeys=scoredKeys.filter(k=>PTS[k]>0).sort((a,b)=>PTS[b]-PTS[a]);
+const downKeys=scoredKeys.filter(k=>PTS[k]<0).sort((a,b)=>PTS[a]-PTS[b]);
+const byKey={}; DATA.drivers.forEach(d=>byKey[d.key]=d);
+const latestBy={}; (DATA.latest_readings||DATA.drivers).forEach(d=>latestBy[d.key]=d);
+const HIST=toPairs(DATA.history);
+const prevMo=madd(DATA.asof,-1), prevScore=DATA.history[prevMo];
+const d1=prevScore!=null?Math.round((DATA.score-prevScore)*10)/10:null;
+const lv=levelOf(DATA.score);
+
+/* =================== responsive line chart =================== */
+/* Draws at the box's real pixel width (so text stays 12px on a phone), redraws on resize,
+   and supports mouse, touch and keyboard (focus the chart, then ← →). */
+function chart(id, draw){
+  const box=document.getElementById(id); if(!box) return;
+  let lastW=-1;
+  const run=(force)=>{ const w=box.clientWidth; if(w<=0) return; if(!force&&Math.abs(w-lastW)<4) return; lastW=w; draw(); };
+  box.__redraw=()=>run(true);
+  if('ResizeObserver' in window) new ResizeObserver(()=>run(false)).observe(box);
+  else window.addEventListener('resize',()=>run(false));
+  run(true);
+}
+function lineChart(mount,seriesList,opts={}){
+  const box=document.getElementById(mount);
+  const prevDet=box.querySelector('details.vals'); const wasOpen=!!(prevDet&&prevDet.open);
+  box.innerHTML='';
+  if(!seriesList.length||seriesList[0].data.length<2){
+    el('p',{class:'note',text:opts.empty||'Not enough data to draw this chart for the current selection.'},box); return; }
+  const W=Math.max(280,Math.round(box.clientWidth||opts.w||720));
+  const narrow=W<560;
+  const H=narrow?(opts.hn||Math.max(220,Math.round((opts.h||260)*0.92))):(opts.h||260);
+  const fmt=opts.fmt||(v=>v.toFixed(1));
+  const showLevelNames=opts.thresholds&&W>=420;
+  const P={t:16,r:showLevelNames?92:(opts.nowcastPad?60:16),b:28,l:opts.pl||36};
+  const svg=svgel('svg',{viewBox:'0 0 '+W+' '+H,width:W,height:H,role:'img',tabindex:'0',
+    'aria-label':(opts.label||'Chart')+'. Focus and use the left and right arrow keys to read values.'},box);
+  const months=seriesList[0].data.map(p=>p[0]);
+  const n=months.length, extra=seriesList.some(S=>S.nowcast)?1:0;
+  const x=i=>P.l+(W-P.l-P.r)*i/(n-1+extra);
+  const lo=opts.lo??0, hi=opts.hi??100;
+  const y=v=>H-P.b-(H-P.t-P.b)*(v-lo)/(hi-lo);
+  const T={fill:'var(--muted)','font-size':'12','font-family':'Barlow, system-ui, sans-serif'};
+  if(opts.levelBands) LEVELS.forEach(L=>{ const a=Math.max(L.lo,lo), b=Math.min(L.hi,hi); if(b<=a) return;
+    svgel('rect',{x:P.l,y:y(b),width:W-P.l-P.r,height:y(a)-y(b),fill:'var('+L.var+')',opacity:.13},svg); });
+  if(opts.thresholds){
+    [35,50,65].forEach(t=>{
+      svgel('line',{x1:P.l,x2:W-P.r,y1:y(t),y2:y(t),stroke:'var(--line)','stroke-dasharray':'4 4'},svg);
+    });
+    if(showLevelNames) LEVELS.forEach(L=>{ const m=(Math.max(L.lo,lo)+Math.min(L.hi,hi))/2; if(m<=lo||m>=hi) return;
+      svgel('text',{...T,x:W-P.r+8,y:y(m)+4,fill:'var('+LVT[L.name]+')','font-weight':'600'},svg).textContent=L.name; });
+    [0,35,50,65,100].forEach(v=>svgel('text',{...T,x:P.l-8,y:y(v)+4,'text-anchor':'end'},svg).textContent=v);
+  } else {
+    const step=opts.gridStep||((hi-lo)/4);
+    for(let t=lo;t<=hi+1e-9;t+=step){
+      svgel('line',{x1:P.l,x2:W-P.r,y1:y(t),y2:y(t),stroke:t===0&&lo<0?'var(--baseline)':'var(--line)'},svg);
+      svgel('text',{...T,x:P.l-8,y:y(t)+4,'text-anchor':'end'},svg).textContent=(opts.yfmt||(v=>+v.toFixed(1)))(t);
+    }
+  }
+  // x ticks spaced at least ~64px apart
+  const plotW=W-P.l-P.r, pxPerMonth=plotW/Math.max(1,n-1+extra);
+  const stepM=[1,3,6,12,24,60,120].find(s=>s*pxPerMonth>=64)||120;
+  months.forEach((m,i)=>{ const mm=+m.slice(5), yy=+m.slice(0,4);
+    const ok=stepM<12?((mm-1)%stepM===0):(mm===1&&yy%(stepM/12)===0);
+    if(!ok) return;
+    svgel('line',{x1:x(i),x2:x(i),y1:H-P.b,y2:H-P.b+4,stroke:'var(--baseline)'},svg);
+    svgel('text',{...T,x:x(i),y:H-P.b+18,'text-anchor':'middle'},svg).textContent=stepM<12?fmtMo(m):String(yy);
+  });
+  svgel('line',{x1:P.l,x2:W-P.r,y1:H-P.b,y2:H-P.b,stroke:'var(--baseline)'},svg);
+  // bands
+  (opts.bands||[]).forEach(b=>{
+    const a=months.indexOf(b.from), j=months.indexOf(b.to);
+    if(a<0&&j<0){ if(!(b.from<months[0]&&b.to>months[n-1])) return; }
+    const i0=a>=0?a:(b.from<months[0]?0:n-1), i1=j>=0?j:(b.to>months[n-1]?n-1:0);
+    svgel('rect',{x:x(i0),y:P.t,width:Math.max(x(i1)-x(i0),3),height:H-P.t-P.b,fill:b.fill||'var(--band)'},svg);
+    if(b.label&&(x(i1)-x(i0))>40){ svgel('text',{...T,x:(x(i0)+x(i1))/2,y:P.t+13,'text-anchor':'middle',fill:'var(--ink-2)','font-weight':'500'},svg).textContent=b.label; }
+  });
+  if(opts.hline!=null){
+    svgel('line',{x1:P.l,x2:W-P.r,y1:y(opts.hline),y2:y(opts.hline),stroke:'var(--critical)','stroke-width':1.2,'stroke-dasharray':'5 4'},svg);
+    svgel('text',{...T,x:W-P.r-4,y:y(opts.hline)-6,'text-anchor':'end',fill:'var(--critical)','font-weight':'600'},svg).textContent=opts.hlineLabel||opts.hline;
+  }
+  (opts.vlines||[]).forEach(vl=>{
+    const i=months.indexOf(vl.at); if(i<0) return;
+    svgel('line',{x1:x(i),x2:x(i),y1:P.t,y2:H-P.b,stroke:'var(--ink-2)','stroke-width':1,'stroke-dasharray':'2 4'},svg);
+    if(vl.label&&x(i)-P.l>110) svgel('text',{...T,x:x(i)-6,y:P.t+28,'text-anchor':'end',fill:'var(--ink-2)'},svg).textContent=vl.label;
+  });
+  seriesList.forEach(S=>{
+    const pts=S.data.map((p,i)=>[x(i),y(p[1])]);
+    if(S.area){
+      svgel('path',{d:'M'+pts[0][0].toFixed(1)+' '+y(lo).toFixed(1)+'L'+pts.map(p=>p[0].toFixed(1)+' '+p[1].toFixed(1)).join('L')+'L'+pts[pts.length-1][0].toFixed(1)+' '+y(lo).toFixed(1)+'Z',fill:S.color,opacity:.08},svg);
+    }
+    svgel('path',{d:'M'+pts.map(p=>p[0].toFixed(1)+' '+p[1].toFixed(1)).join('L'),fill:'none',stroke:S.color,
+      'stroke-width':S.width||2,'stroke-linejoin':'round','stroke-linecap':'round'},svg);
+    const last=pts[pts.length-1];
+    svgel('circle',{cx:last[0],cy:last[1],r:4,fill:S.color,stroke:'var(--surface)','stroke-width':2},svg);
+    if(S.nowcast){
+      const nx=x(n), ny=y(S.nowcast[1]);
+      svgel('line',{x1:last[0],y1:last[1],x2:nx,y2:ny,stroke:S.color,'stroke-width':S.width||2,'stroke-dasharray':'4 4'},svg);
+      svgel('circle',{cx:nx,cy:ny,r:4.5,fill:'var(--surface)',stroke:S.color,'stroke-width':2},svg);
+      svgel('text',{...T,x:nx,y:ny+(ny>H/2?-12:20),'text-anchor':'end','font-weight':'600'},svg).textContent='preliminary';
+    }
+  });
+  // interaction: mouse, touch and keyboard
+  const tip=el('div',{class:'tip'},box);
+  const vline=svgel('line',{y1:P.t,y2:H-P.b,stroke:'var(--baseline)','stroke-width':1,visibility:'hidden'},svg);
+  const dots=seriesList.map(S=>svgel('circle',{r:4.5,fill:S.color,stroke:'var(--surface)','stroke-width':2,visibility:'hidden'},svg));
+  const hit=svgel('rect',{x:P.l,y:0,width:W-P.l-P.r,height:H,fill:'transparent'},svg);
+  let cur=n-1;
+  const show=i=>{
+    cur=i=Math.max(0,Math.min(n-1,i));
+    vline.setAttribute('x1',x(i)); vline.setAttribute('x2',x(i)); vline.setAttribute('visibility','visible');
+    let html='<div class="td">'+fmtMoLong(months[i])+'</div>';
+    seriesList.forEach((S,k)=>{ const v=S.data[i][1];
+      dots[k].setAttribute('cx',x(i)); dots[k].setAttribute('cy',y(v)); dots[k].setAttribute('visibility','visible');
+      html+='<div class="tr"><span>'+(seriesList.length>1?'<i style="background:'+S.color+'"></i>':'')+esc(S.name)+'</span><b>'+fmt(v)+'</b></div>'; });
+    if(opts.tipExtra) html+=opts.tipExtra(months[i]);
+    tip.innerHTML=html; tip.style.display='block';
+    const tw=tip.offsetWidth||150; let left=x(i)+14; if(left+tw>W) left=x(i)-tw-14;
+    tip.style.left=Math.max(0,left)+'px'; tip.style.top='6px';
+  };
+  const hide=()=>{ tip.style.display='none'; vline.setAttribute('visibility','hidden'); dots.forEach(d=>d.setAttribute('visibility','hidden')); };
+  const idxAt=ev=>{ const r=svg.getBoundingClientRect(); const px=(ev.clientX-r.left)*(W/r.width);
+    return Math.round((px-P.l)/(W-P.l-P.r)*(n-1+extra)); };
+  hit.addEventListener('pointermove',ev=>show(idxAt(ev)));
+  hit.addEventListener('pointerdown',ev=>show(idxAt(ev)));
+  hit.addEventListener('pointerleave',ev=>{ if(ev.pointerType==='mouse') hide(); });
+  svg.addEventListener('focus',()=>show(cur));
+  svg.addEventListener('blur',hide);
+  svg.addEventListener('keydown',e=>{
+    const step={ArrowLeft:-1,ArrowRight:1,PageUp:-12,PageDown:12}[e.key];
+    if(step){ e.preventDefault(); show(cur+step); }
+    else if(e.key==='Home'){ e.preventDefault(); show(0); }
+    else if(e.key==='End'){ e.preventDefault(); show(n-1); }
+    else if(e.key==='Escape') hide();
+  });
+  // values table for precise reading
+  if(opts.table!==false){
+    const det=el('details',{class:'more vals'},box); if(wasOpen) det.open=true;
+    el('summary',{text:'Show values as a table'},det);
+    const tbx=el('div',{class:'tablebox'},det);
+    const tb=el('table',{class:'t small'},tbx);
+    const hr=el('tr',{},el('thead',{},tb)); el('th',{text:'Month'},hr);
+    seriesList.forEach(S=>el('th',{class:'num',text:S.name},hr));
+    const body=el('tbody',{},tb);
+    for(let i=n-1;i>=0;i--){ const tr=el('tr',{},body); el('td',{text:fmtMoLong(months[i])},tr);
+      seriesList.forEach(S=>el('td',{class:'num',text:fmt(S.data[i][1])},tr)); }
+  }
+}
+function niceBounds(vals,pad=0.1){
+  let mn=Math.min(...vals), mx=Math.max(...vals); const r=(mx-mn)||Math.abs(mx)||1; mn-=r*pad; mx+=r*pad;
+  const raw=(mx-mn)/4, mag=Math.pow(10,Math.floor(Math.log10(raw))); const step=[1,2,2.5,5,10].map(s=>s*mag).find(s=>s>=raw);
+  return {lo:Math.floor(mn/step)*step, hi:Math.ceil(mx/step)*step, step};
+}
+
+/* =================== header =================== */
+(document.getElementById('asof')||{}).textContent='Headline month '+fmtMoLong(DATA.asof)+(DATA.data_retrieved?' · data retrieved '+DATA.data_retrieved:'');
+document.getElementById('footMeta').textContent='Model v'+(DATA.version||'')+' · headline month '+fmtMo(DATA.asof)+' · data retrieved '+(DATA.data_retrieved||'—')+' · built '+(DATA.generated||'')+'.';
+
+/* =================== OVERVIEW (v6.1 dashboard look) =================== */
+let setSpan=()=>{};
+(function(){
+  // filter bar: last updated
+  document.getElementById('fUpd').innerHTML='Data retrieved <b>'+esc(DATA.data_retrieved||'—')+'</b><br>Headline month <b>'+fmtMoLong(DATA.asof)+'</b>';
+  // gauge: semicircle, colored by level up to the score, grey beyond
+  const box=document.getElementById('gauge');
+  const W=300,H=172,cx=150,cy=156,R=122,SW=24;
+  const svg=svgel('svg',{viewBox:'0 0 '+W+' '+H,role:'img','aria-label':'Pressure score '+DATA.score.toFixed(0)+' out of 100, '+lv.name},box);
+  const ang=v=>Math.PI*(1-v/100), pt=(v,r)=>[cx+r*Math.cos(ang(v)),cy-r*Math.sin(ang(v))];
+  const arc=(a,b,r)=>{const [x1,y1]=pt(a,r),[x2,y2]=pt(b,r);return 'M'+x1.toFixed(2)+' '+y1.toFixed(2)+' A'+r+' '+r+' 0 0 1 '+x2.toFixed(2)+' '+y2.toFixed(2);};
+  svgel('path',{d:arc(0,100,R),fill:'none',stroke:'var(--surface-2)','stroke-width':SW,'stroke-linecap':'round'},svg);
+  LEVELS.forEach(L=>{ const a=L.lo, b=Math.min(L.hi,DATA.score); if(b<=a) return;
+    svgel('path',{d:arc(a,b,R),fill:'none',stroke:'var('+L.var+')','stroke-width':SW,'stroke-linecap':'butt'},svg); });
+  const [sx,sy]=pt(0,R); svgel('circle',{cx:sx,cy:sy,r:SW/2,fill:'var('+LEVELS[0].var+')'},svg);
+  [35,50,65].forEach(t=>{ const [a1,b1]=pt(t,R-SW/2-2),[a2,b2]=pt(t,R+SW/2+2);
+    svgel('line',{x1:a1,y1:b1,x2:a2,y2:b2,stroke:'var(--surface)','stroke-width':2.5},svg); });
+  if(DATA.score_band){ svgel('path',{d:arc(DATA.score_band.lo,DATA.score_band.hi,R-SW/2-7),fill:'none',stroke:'var(--ink)','stroke-width':3,opacity:.55,'stroke-linecap':'round'},svg); }
+  const [nx,ny]=pt(DATA.score,R); svgel('circle',{cx:nx,cy:ny,r:9,fill:'var(--surface)',stroke:'var(--ink)','stroke-width':3},svg);
+  const T={fill:'var(--muted)','font-size':'12','font-family':'Barlow, system-ui, sans-serif','text-anchor':'middle'};
+  [[0,'0'],[100,'100']].forEach(([v,t])=>{ const [x,y]=pt(v,R); svgel('text',{...T,x,y:y+SW/2+14},svg).textContent=t; });
+  const gn=el('div',{class:'gn'},box); el('b',{text:DATA.score.toFixed(0)},gn); el('span',{text:'/100'},gn);
+  const gl=document.getElementById('gLevel'); gl.textContent=lv.name; gl.style.color='var('+LVT[lv.name]+')';
+  const levelPhrase={'Calm':'well below normal','Near normal':'slightly below normal','Above normal':'above normal','High':'high, in the alert zone'}[lv.name];
+  let dir=''; if(d1!=null){ const pm=monthName(prevMo);
+    dir=Math.abs(d1)<1.5?' and little changed from '+pm:(d1>0?' and rising: up '+d1.toFixed(1)+' points from '+pm:' and easing: down '+Math.abs(d1).toFixed(1)+' points from '+pm); }
+  document.getElementById('ovHead').textContent='Pressure on El Paso’s economy in '+fmtMoLong(DATA.asof)+' is '+levelPhrase+dir+'. 50 is a typical month.';
+  const gc=document.getElementById('gChange');
+  if(d1!=null){ gc.innerHTML='<span class="'+(d1>0?'up':d1<0?'down':'')+'">'+(d1>0?'▲ ':d1<0?'▼ ':'')+sgn(d1)+' points</span>'; }
+  document.getElementById('g3m').textContent=(DATA.delta3m!=null?sgn(DATA.delta3m)+' over 3 months · ':'')+'a rise means more pressure';
+  const gg=document.getElementById('gGuide');
+  LEVELS.slice().reverse().forEach(L=>{ const li=el('li',{class:L===lv?'on':''},gg); const i=el('i',{},li); i.style.background='var('+L.var+')';
+    el('span',{text:L.lo+'–'+L.hi},li); el('span',{text:L.name},li); });
+  const active=DATA.score>=65;
+  document.getElementById('ovStatus').innerHTML='Employment warning: <b style="color:'+(active?'var(--critical)':'var(--good-text)')+'">'+(active?'active':'not active')+'</b> (fires at 65)';
+  if(DATA.score_band){ document.getElementById('ovRangeTxt').textContent='Reweighting the three layers and leaving out one indicator at a time moves this month’s score between '+
+    DATA.score_band.lo.toFixed(0)+' and '+DATA.score_band.hi.toFixed(0)+' (10th to 90th percentile). The thin dark arc inside the gauge shows that range. Moves of a point or two are inside it, so read them as “about the same.”'; }
+  else document.getElementById('ovRange').hidden=true;
+})();
+
+/* why panel: numbered rows with point badges */
+(function(){
+  const box=document.getElementById('whyRows'); const gap=DATA.score-50;
+  document.getElementById('whyTitle').textContent='Why is the score '+DATA.score.toFixed(0)+'?';
+  document.getElementById('whySub').textContent='Points each indicator moves the score away from a typical 50, largest first. Red adds pressure; green eases it. Select a row for what it measures.';
+  const order=scoredKeys.slice().sort((a,b)=>Math.abs(PTS[b])-Math.abs(PTS[a]));
+  const rows=order.map((k,i)=>{ const d=byKey[k]; if(!d) return null; const I=INFO[k], p=PTS[k];
+    const cls=p>0.05?'up':p<-0.05?'down':'zero';
+    const r=el('div',{class:'wrow click',role:'button',tabindex:'0','aria-expanded':'false'},box);
+    const n=el('div',{class:'n',text:String(i+1)},r); n.style.background=cls==='up'?'var(--pos)':cls==='down'?'var(--neg)':'var(--muted)';
+    const t=el('div',{class:'wt'},r);
+    t.innerHTML='<b>'+esc(I.name)+'</b>: '+esc(I.val(d))+' '+esc(I.period)+(d.typical!=null?' (typical '+esc(typTxt(k,d.typical))+')':'')+'. <span class="eff '+(cls==='zero'?'':cls)+'">'+effectPts(p)+'</span>';
+    const b=el('div',{class:'pb '+cls},r); b.appendChild(document.createTextNode(sgn(p))); el('small',{text:'points'},b);
+    const x=el('div',{class:'xtra',hidden:''},r); x.textContent=WHATIS[k]+' Reference month: '+fmtMoLong(d.asof)+'.';
+    const tog=()=>{ const open=x.hidden; x.hidden=!open; r.setAttribute('aria-expanded',String(open)); };
+    r.addEventListener('click',tog); r.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); tog(); } });
+    return r; }).filter(Boolean);
+  laggedDrivers.forEach(d=>{ const r=el('div',{class:'wrow'},box); el('div',{class:'n',text:'–',style:'background:var(--muted)'},r);
+    el('div',{class:'wt',text:INFO[d.key].name+': no '+fmtMoLong(DATA.asof)+' value yet, so it is not in this month’s score.'},r); const b=el('div',{class:'pb zero',text:'—'},r); rows.push(r); });
+  expander(box,rows,5,'indicators');
+  const up=upKeys.reduce((a,k)=>a+PTS[k],0), dn=downKeys.reduce((a,k)=>a+PTS[k],0);
+  const t=el('div',{class:'wtally'},box);
+  t.innerHTML='<span><b class="up">'+sgn(up)+'</b> adding pressure</span><span><b class="down">'+sgn(dn)+'</b> easing pressure</span><span class="tn">50 '+(gap<0?'−':'+')+' '+Math.abs(gap).toFixed(1)+' = <b>'+DATA.score.toFixed(0)+'</b></span>';
+})();
+
+/* key indicators table */
+(function(){
+  document.getElementById('kiSub').textContent='Values for '+fmtMoLong(DATA.asof)+', the headline month. Points = effect on the score.';
+  const tb=document.querySelector('#kiTable tbody');
+  ['Local labor','Border economy','Housing market'].forEach(layer=>{
+    const s=DATA.layers[layer].score; const g=el('tr',{class:'grp'},tb); const td=el('td',{colspan:'4'},g);
+    td.innerHTML=esc(LAYER_NAME[layer])+' <span>· layer '+s.toFixed(0)+', '+levelOf(s).name+'</span>';
+    Object.keys(INFO).filter(k=>INFO[k].layer===layer).forEach(k=>{ const d=byKey[k]; if(!d) return; const I=INFO[k];
+      const tr=el('tr',{},tb); el('td',{text:cap(I.short)},tr); el('td',{class:'num',text:I.val(d)},tr);
+      const c=el('td',{class:'tr'},tr); const a=el('span',{class:'a '+(d.z>0.25?'up':d.z<-0.25?'down':''),text:d.z>0.25?'▲ ':d.z<-0.25?'▼ ':'● '},c);
+      c.appendChild(document.createTextNode(d.typical!=null?'typ. '+typTxt(k,d.typical):''));
+      c.title=effectZ(d.z);
+      const p=PTS[k]; const pc=el('td',{class:'num'},tr);
+      if(p!=null) el('span',{class:'pbadge '+(p>0?'up':p<0?'down':''),text:sgn(p)},pc); else pc.textContent='—'; });
+  });
+})();
+
+/* score history with level bands, synced with the Time range filter */
+(function(){
+  const ncm=Object.keys(DATA.nowcast||{}).sort();
+  const nc=ncm.length?[ncm[ncm.length-1],DATA.nowcast[ncm[ncm.length-1]].score]:null;
+  let span=36;
+  const draw=()=>{ const data=span>0?HIST.slice(-span):HIST;
+    lineChart('histChart',[{name:'Score',color:'var(--ink)',width:2.2,data,nowcast:nc}],
+      {h:300,hn:250,thresholds:true,levelBands:true,nowcastPad:!!nc,
+       bands:[{from:'2020-03',to:'2020-08',label:'COVID-19',fill:'rgba(120,130,150,.12)'},{from:'2008-10',to:'2009-06',label:'2008–09',fill:'rgba(120,130,150,.12)'}],
+       vlines:DATA.regime_break?[{at:DATA.regime_break,label:'housing layer added'}]:[],
+       tipExtra:m=>'<div class="tr"><span>Level</span><b>'+levelOf(DATA.history[m]).name+'</b></div>',
+       label:'Pressure score by month, '+fmtMoLong(data[0][0])+' to '+fmtMoLong(data[data.length-1][0])}); };
+  chart('histChart',draw);
+  const tabs=document.querySelectorAll('#histTabs button'), sel=document.getElementById('fRange');
+  setSpan=n=>{ span=n; tabs.forEach(t=>t.setAttribute('aria-selected',String(+t.dataset.months===n))); sel.value=String(n); document.getElementById('histChart').__redraw(); };
+  tabs.forEach(b=>b.addEventListener('click',()=>setSpan(+b.dataset.months)));
+  sel.addEventListener('change',()=>setSpan(+sel.value));
+})();
+
+/* regional comparison bars, driven by the Compare to filter */
+(function(){
+  const C=DATA.comparison; const names=['El Paso','Texas','United States','Las Cruces'].filter(n=>C[n]);
+  const bars=document.getElementById('rBars'), labs=document.getElementById('rLabels'), capEl=document.getElementById('rCap'), sel=document.getElementById('fCompare');
+  const ref=el('div',{class:'ref'},bars); ref.style.bottom='50%'; 
+  const nodes={};
+  names.forEach(n=>{ const b=el('button',{class:'rbar'+(n==='El Paso'?' ep':''),type:'button','aria-label':n+': '+C[n].latest.toFixed(0)},bars);
+    el('b',{text:C[n].latest.toFixed(0)},b); const i=el('i',{},b); i.style.height=Math.max(2,C[n].latest)+'%';
+    if(n!=='El Paso') b.addEventListener('click',()=>{ sel.value=n; render(); });
+    nodes[n]=b; el('span',{text:n==='United States'?'U.S.':n},labs); });
+  function render(){ const c=sel.value; names.forEach(n=>nodes[n].classList.toggle('sel',n===c));
+    const ep=C['El Paso'].latest, o=C[c].latest, g=ep-o; const m=Object.keys(C['El Paso'].history).sort().pop();
+    capEl.textContent='El Paso’s labor pressure ('+ep.toFixed(0)+') is '+(Math.abs(g)<2?'about the same as ':Math.abs(g).toFixed(0)+' points '+(g>0?'above ':'below '))+c+' ('+o.toFixed(0)+'), '+fmtMoLong(m)+'. El Paso also counts payroll growth; the others use unemployment only.'; }
+  sel.addEventListener('change',render); render();
+})();
+
+/* three audience views */
+(function(){
+  const box=document.getElementById('views'); const L=DATA.layers, lvv=DATA.latest_values||{};
+  const sect=Object.entries(DATA.sectors).sort((a,b)=>b[1].yoy-a[1].yoy); const weak=sect.filter(([,s])=>s.yoy<=0).map(([n])=>n);
+  const emp=byKey.ep_emp_yoy;
+  const icon={biz:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V4h6v3M3 13h18"/></svg>',
+    np:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7.5-4.6-9.3-9.2C1.4 8.4 3.6 5 7 5c2 0 3.3 1.1 5 3 1.7-1.9 3-3 5-3 3.4 0 5.6 3.4 4.3 6.8C19.5 16.4 12 21 12 21z"/></svg>',
+    ed:'<svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>'};
+  [{i:'biz',h:'Business owner view',q:'Is the local job market under pressure?',
+    p:'Labor layer '+L['Local labor'].score.toFixed(0)+' ('+levelOf(L['Local labor'].score).name+'). '+(emp?cap(INFO.ep_emp_yoy.read(emp))+', below its typical pace. ':'')+(lvv.ep_unemployment!=null?'Unemployment '+lvv.ep_unemployment.toFixed(1)+'%.':''),
+    a:'#indList',c:'View labor indicators'},
+   {i:'np',h:'Nonprofit view',q:'Is household pressure building?',
+    p:'Housing layer '+L['Housing market'].score.toFixed(0)+' ('+levelOf(L['Housing market'].score).name+'): '+(byKey.listings_yoy?INFO.listings_yoy.read(byKey.listings_yoy)+'. ':'')+'Food-assistance demand will be added once a partner shares data.',
+    a:'#pipelineData',c:'View data on the way'},
+   {i:'ed',h:'Economic development view',q:'Which sectors are growing, and which are not?',
+    p:'Fastest growth: '+sect[0][0]+' ('+sgn(sect[0][1].yoy)+'% from a year earlier). '+(weak.length?'Flat or shrinking: '+weak.join(', ')+'.':'No sector is shrinking.'),
+    a:'#sectors',c:'View sector dashboard'}].forEach(v=>{
+    const c=el('div',{class:'card view'},box); const h=el('div',{class:'vh'},c); h.innerHTML=icon[v.i]; h.appendChild(document.createTextNode(v.h));
+    el('div',{class:'vq',text:v.q},c); el('p',{text:v.p},c); el('a',{class:'cta',href:v.a,text:v.c+' →'},c); });
+})();
+
+/* contribution-bar row builder */
+function cbarRow(box, o){
+  const row=el('div',{class:'cbar'+(o.cls?' '+o.cls:'')},box);
+  const t=el('div',{class:'ct'},row);
+  if(o.html) t.innerHTML=o.html; else t.textContent=o.text||'';
+  if(o.meta) el('span',{class:'cm',text:o.meta},t);
+  const tr=el('div',{class:'track'},row); el('div',{class:'zero'},tr);
+  if(o.v!=null){
+    const i=el('i',{},tr); const w=Math.max(1.5,Math.min(Math.abs(o.v)/o.max*50,50));
+    i.style.left=(o.v>=0?50:50-w)+'%'; i.style.width=w+'%'; i.style.background=o.v>=0?'var(--pos)':'var(--neg)';
+  }
+  const cv=el('div',{class:'cv'},row);
+  cv.textContent=o.vtext; cv.style.color=o.v>0?'var(--pos)':o.v<0?'var(--neg)':'var(--muted)';
+  if(o.unit) el('small',{text:o.unit},cv);
+  if(o.more){
+    row.classList.add('click'); row.setAttribute('role','button'); row.setAttribute('tabindex','0'); row.setAttribute('aria-expanded','false');
+    const x=el('div',{class:'xtra',hidden:''},row); x.textContent=o.more;
+    const tog=()=>{ const open=x.hidden; x.hidden=!open; row.setAttribute('aria-expanded',String(open)); };
+    row.addEventListener('click',tog);
+    row.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); tog(); } });
+  }
+  return row;
+}
+function cbarAxis(box,left,right){ const a=el('div',{class:'cbaxis','aria-hidden':'true'},box);
+  a.innerHTML='<span></span><span><span>← '+left+'</span><span>'+right+' →</span></span><span></span>'; }
+
+/* what moved the score since last month */
+(function(){
+  const ca=DATA.change_attribution; const card=document.getElementById('changed');
+  if(!ca){ card.hidden=true; return; }
+  document.getElementById('chgTitle').textContent='What moved the score since '+monthName(ca.from);
+  const lagged=Object.keys(ca.points_by_indicator).filter(k=>(ca.new_data||{})[k]&&ca.new_data[k]<ca.to);
+  const lagPts=lagged.reduce((a,k)=>a+ca.points_by_indicator[k],0);
+  const fromS=DATA.history[ca.from], toS=DATA.history[ca.to];
+  let sub='The score '+(ca.delta_score>0?'rose ':ca.delta_score<0?'fell ':'held at ')+(ca.delta_score!==0?Math.abs(ca.delta_score).toFixed(1)+' points, ':'')+
+    'from '+(fromS!=null?fromS.toFixed(1):'—')+' in '+monthName(ca.from)+' to '+(toS!=null?toS.toFixed(1):'—')+' in '+monthName(ca.to)+
+    '. Each bar is one indicator’s share of that change, in index points. Red added pressure; blue eased it. This is about the change, not the level: the next panel explains why the level is '+DATA.score.toFixed(0)+'.';
+  if(lagged.length) sub+=' '+sgn(lagPts)+' points come from '+lagged.length+' indicator'+(lagged.length>1?'s':'')+' whose '+fmtMo(ca.to)+' data is not in yet: a data-timing effect, not an economic move.';
+  document.getElementById('chgSub').textContent=sub;
+  const box=document.getElementById('chgRows');
+  const entries=Object.entries(ca.points_by_indicator).sort((a,b)=>Math.abs(b[1])-Math.abs(a[1]));
+  const mx=Math.max(0.2,...entries.map(e=>Math.abs(e[1])));
+  const rows=entries.map(([k,v])=>{
+    const nm=INFO[k]?cap(INFO[k].short):k;
+    return cbarRow(box,{text:nm,meta:LAYER_NAME[INFO[k]?INFO[k].layer:'']+(lagged.includes(k)?' · '+fmtMo(ca.to)+' data pending':''),
+      v,max:mx,vtext:sgn(v),unit:'pts'});
+  });
+  cbarAxis(box,'eased pressure','added pressure');
+  expander(box,rows,3,'indicators');
+})();
+
+/* data coverage */
+(function(){
+  const box=document.getElementById('covSum');
+  const keys=Object.keys(INFO), next=madd(DATA.asof,1);
+  const reported=keys.filter(k=>latestBy[k]&&latestBy[k].asof>=next);
+  const add=(big,txt)=>{ const r=el('div',{class:'cs'},box); el('b',{text:big},r); el('span',{text:txt},r); };
+  add(keys.length+'/'+keys.length,'indicators for '+fmtMoLong(DATA.asof)+', the headline month.');
+  add(reported.length+'/'+keys.length,'reported so far for '+fmtMoLong(next)+(reported.length?': '+reported.map(k=>INFO[k].short).join(', ')+'.':'.'));
+  const nc=(DATA.nowcast||{})[next];
+  const pr=el('div',{class:'prelim'},box);
+  if(nc){ pr.innerHTML='<b>Preliminary '+fmtMoLong(next)+': '+nc.score.toFixed(0)+' ('+levelOf(nc.score).name+')</b>, from '+nc.present.length+' of '+keys.length+
+      ' indicators. This is not the headline: it becomes one once the rest report, and it can move when they do.'+(nc.score>=65?' It is above 65: an early flag pending the missing data.':''); }
+  else { pr.textContent='No preliminary '+fmtMoLong(next)+' score yet. One appears once at least one labor and one trade & currency indicator report for that month; it stays labeled preliminary until all seven are in.'; }
+  if((DATA.partial_months||[]).length){
+    el('div',{text:'Months with some indicators missing, scored from the rest: '+DATA.partial_months.map(fmtMoLong).join(', ')+'.'},box);
+  }
+  const tb=document.querySelector('#covTable tbody');
+  const latestAll=keys.map(k=>latestBy[k]?latestBy[k].asof:DATA.asof).sort().pop();
+  const win=[...Array(6)].map((_,i)=>madd(latestAll,i-5));
+  keys.sort((a,b)=>(latestBy[b]?.asof||'').localeCompare(latestBy[a]?.asof||'')).forEach(k=>{
+    const d=latestBy[k]; const tr=el('tr',{},tb);
+    el('td',{text:cap(INFO[k].short)},tr);
+    el('td',{text:d?fmtMo(d.asof):'—'},tr);
+    el('td',{text:INFO[k].delay},tr);
+    const td=el('td',{},tr); const ms=el('span',{class:'months',role:'img','aria-label':'Reported through '+(d?fmtMoLong(d.asof):'unknown')},td);
+    win.forEach(m=>{ const i=el('i',{class:(d&&m<=d.asof)?'':'off',title:fmtMoLong(m)},ms); });
+  });
+})();
+
+/* =================== INDICATORS =================== */
+(function(){
+  const box=document.getElementById('indRows');
+  ['Local labor','Border economy','Housing market'].forEach(layer=>{
+    el('div',{class:'laygrp',text:LAYER_NAME[layer]+' · '+(DATA.layers[layer].weight*100).toFixed(0)+'% of the score'},box);
+    Object.keys(INFO).filter(k=>INFO[k].layer===layer).forEach(k=>{
+      const d=latestBy[k]||byKey[k]; if(!d) return; const I=INFO[k];
+      const row=el('div',{class:'ind'},box); row.id='ind-'+k;
+      const nm=el('div',{class:'in'},row); nm.textContent=I.name; el('small',{text:I.period},nm);
+      const v=el('div',{class:'iv'},row); el('b',{text:I.val(d)},v); el('small',{text:fmtMoLong(d.asof)},v);
+      const ii=el('div',{class:'ii'},row);
+      ii.innerHTML=(d.typical!=null?'Typical for El Paso: '+esc(typTxt(k,d.typical))+'. ':'')+'<span class="eff '+(d.z>0.25?'up':d.z<-0.25?'down':'')+'">'+effectZ(d.z)+'</span>'+
+        ' · '+Math.abs(d.z).toFixed(1)+' standard deviations from typical';
+      const hd=byKey[k];
+      if(hd&&hd.asof!==d.asof) el('div',{class:'muted',style:'font-size:12.5px;margin-top:2px',text:'Newer than the '+fmtMo(DATA.asof)+' score, which uses '+I.val(hd)+'.'},ii);
+      const det=el('details',{},row); el('summary',{text:'Source & method'},det);
+      const p=el('p',{},det); p.textContent=WHATIS[k]+' ';
+      const a=el('a',{href:'https://fred.stlouisfed.org/series/'+I.series,target:'_blank',rel:'noopener',text:'FRED '+I.series},p);
+      p.appendChild(document.createTextNode(' · ')); el('a',{href:'#datamethods',text:'How it is scored'},p);
+    });
+  });
+})();
+
+/* divergence badge + regional comparison */
+(function(){
+  const dv=DATA.divergence; if(dv){
+    const state=dv.state||'tracking';
+    const colors={underperforming:'--critical',outperforming:'--good',tracking:'--baseline'};
+    const words={underperforming:'under more pressure than',outperforming:'under less pressure than',tracking:'moving with'};
+    const b=document.getElementById('divergeBadge'); b.style.borderColor='var('+colors[state]+')';
+    b.querySelector('.dot').style.background='var('+colors[state]+')';
+    document.getElementById('divergeText').textContent='El Paso is '+words[state]+' Texas'+(dv.latest_gap!=null?' (gap '+sgn(dv.latest_gap,0)+' pts)':'');
+    document.getElementById('divergeRule').textContent='Rule: El Paso is flagged when its labor score is 10 or more points above (or below) Texas for 2 months in a row.';
+  }
+  const cmpColors={'El Paso':'var(--s-ep)','Las Cruces':'var(--s-lc)','Texas':'var(--s-tx)','United States':'var(--s-us)'};
+  const cb=document.getElementById('cmpBars');
+  for(const[name,obj]of Object.entries(DATA.comparison)){
+    const ms=Object.keys(obj.history).sort(); const last=ms[ms.length-1];
+    el('div',{class:'cl',text:name+' · '+fmtMo(last)},cb);
+    const track=el('div',{class:'cb'},cb); const fill=el('i',{},track);
+    fill.style.width=Math.max(2,obj.latest)+'%'; fill.style.background=cmpColors[name];
+    el('div',{class:'cv',text:obj.latest.toFixed(0)},cb);
+  }
+  const series=[], on={}; const leg=document.getElementById('cmpLegend');
+  for(const[name,obj]of Object.entries(DATA.comparison)){
+    series.push({name,color:cmpColors[name],data:toPairs(obj.history).filter(p=>p[0]>='2018-06')}); on[name]=true;
+    const key=el('button',{class:'key',type:'button','aria-pressed':'true'},leg);
+    const sw=el('span',{class:'swatch'},key); sw.style.background=cmpColors[name];
+    key.appendChild(document.createTextNode(name+' · '+obj.latest.toFixed(0)));
+    key.addEventListener('click',()=>{ if(on[name]&&Object.values(on).filter(Boolean).length===1) return;
+      on[name]=!on[name]; key.classList.toggle('off',!on[name]); key.setAttribute('aria-pressed',String(on[name]));
+      document.getElementById('cmpChart').__redraw(); });
+  }
+  chart('cmpChart',()=>{
+    const vis=series.filter(S=>on[S.name]); const maps=vis.map(S=>Object.fromEntries(S.data));
+    const axis=vis[0].data.map(p=>p[0]).filter(m=>maps.every(mp=>mp[m]!=null));
+    lineChart('cmpChart',vis.map((S,i)=>({...S,data:axis.map(m=>[m,maps[i][m]])})),
+      {h:300,gridStep:25,fmt:v=>v.toFixed(0),bands:[{from:'2020-03',to:'2020-08',label:'COVID-19'}],
+       label:'Labor pressure score: El Paso, Las Cruces, Texas and the United States, '+fmtMoLong(axis[0])+' to '+fmtMoLong(axis[axis.length-1])});
+  });
+})();
+
+/* border chain */
+(function(){
+  const BC=DATA.border_chain; if(!BC||!BC.series||!BC.series.length){ document.getElementById('chain').hidden=true; return; }
+  const by={}; BC.series.forEach(s=>by[s.key]=s);
+  const short={trade:'U.S.–Mexico goods trade',pov:'Personal vehicles',ped:'Pedestrians',trucks:'Trucks',
+    trade_jobs:'Trade, transport & utilities jobs',leisure_jobs:'Leisure & hospitality jobs'};
+  const fmtP=v=>sgn(v,1)+'%';
+  const stages=[
+    {t:'1 · The corridor',d:'Goods moving between the U.S. and Mexico, nationally. Much of it crosses here; most of it passes through.',keys:['trade']},
+    {t:'2 · Crossings into El Paso',d:'People and trucks entering at the El Paso and Ysleta ports, where border activity turns into local spending.',keys:['pov','ped','trucks']},
+    {t:'3 · Local jobs',d:'El Paso sectors that serve cross-border shoppers, visitors and freight.',keys:['trade_jobs','leisure_jobs']}];
+  const box=document.getElementById('chainSteps');
+  stages.forEach((st,i)=>{
+    if(i>0) el('div',{class:'chainarrow','aria-hidden':'true',text:'→'},box);
+    const c=el('div',{class:'chainstep'},box); el('h3',{text:st.t},c); el('p',{text:st.d},c);
+    st.keys.forEach(k=>{ const s=by[k]; if(!s) return;
+      const r=el('div',{class:'chainrow'},c);
+      const l=el('div',{},r); l.appendChild(document.createTextNode(short[k])); el('span',{class:'cm',text:'vs a year earlier · '+fmtMo(s.latest_month)},l);
+      el('div',{class:'cv',text:fmtP(s.latest)},r);
+      const pairs=toPairs(s.yoy3).slice(-36), w=84,h=26, vals=pairs.map(p=>p[1]);
+      const mn=Math.min(0,...vals),mx=Math.max(0,...vals),rg=(mx-mn)||1, y=v=>(h-3)-(h-6)*(v-mn)/rg;
+      const sv=svgel('svg',{viewBox:'0 0 '+w+' '+h,role:'img','aria-label':short[k]+', change from a year earlier, last 36 months'},r);
+      svgel('line',{x1:0,x2:w,y1:y(0),y2:y(0),stroke:'var(--baseline)','stroke-width':1},sv);
+      const pts=vals.map((v,j)=>[(j/(vals.length-1))*(w-6)+3,y(v)]);
+      svgel('path',{d:'M'+pts.map(p=>p[0].toFixed(1)+' '+p[1].toFixed(1)).join('L'),fill:'none',stroke:'var(--accent)','stroke-width':1.8,'stroke-linejoin':'round'},sv);
+      const lp=pts[pts.length-1]; svgel('circle',{cx:lp[0],cy:lp[1],r:2.6,fill:'var(--accent)'},sv);
+    });
+  });
+  const tr=by.trade, pv=by.pov, pd=by.ped;
+  if(tr&&pv&&pd){
+    const people=(pv.latest+pd.latest)/2;
+    let t='<b>Reading:</b> U.S.–Mexico goods trade is '+(tr.latest>=0?'up ':'down ')+Math.abs(tr.latest).toFixed(1)+'% from a year earlier ('+fmtMo(tr.latest_month)+
+      '), while personal-vehicle and pedestrian crossings into El Paso are '+fmtP(pv.latest)+' and '+fmtP(pd.latest)+'. ';
+    t+=Math.abs(tr.latest-people)>=10?'The corridor and the local channel are moving differently. Strong trade does not by itself mean more money staying in El Paso, which is why crossings are tracked separately. '
+      :'The corridor and the local channel are moving roughly together. ';
+    t+='Whether crossings belong in the score is tested under <a href="#bordertest">Research</a>.';
+    document.getElementById('chainRead').innerHTML=t;
+  }
+  const CH=[['trade','var(--s-ep)'],['trucks','var(--s-lc)'],['pov','var(--s-tx)'],['ped','var(--s-us)']].filter(([k])=>by[k]);
+  const on={}; CH.forEach(([k])=>on[k]=true); let span=36;
+  const leg=document.getElementById('chainLegend');
+  CH.forEach(([k,c])=>{
+    const key=el('button',{class:'key',type:'button','aria-pressed':'true'},leg);
+    const sw=el('span',{class:'swatch'},key); sw.style.background=c; key.appendChild(document.createTextNode(short[k]+' · '+fmtP(by[k].latest)));
+    key.addEventListener('click',()=>{ if(on[k]&&Object.values(on).filter(Boolean).length===1) return;
+      on[k]=!on[k]; key.classList.toggle('off',!on[k]); key.setAttribute('aria-pressed',String(on[k])); document.getElementById('chainChart').__redraw(); });
+  });
+  chart('chainChart',()=>{
+    const vis=CH.filter(([k])=>on[k]);
+    let axis=Object.keys(by[vis[0][0]].yoy3).sort().filter(m=>vis.every(([k])=>by[k].yoy3[m]!=null));
+    if(span>0) axis=axis.slice(-span);
+    const series=vis.map(([k,c])=>({name:short[k],color:c,data:axis.map(m=>[m,by[k].yoy3[m]])}));
+    const nb=niceBounds(series.flatMap(S=>S.data.map(p=>p[1])).concat([0]),0.05);
+    lineChart('chainChart',series,{h:300,lo:nb.lo,hi:nb.hi,gridStep:nb.step,fmt:v=>sgn(v,1)+'%',yfmt:v=>v+'%',pl:44,
+      bands:span===0?[{from:'2020-03',to:'2021-11',label:'travel restrictions'}]:[],
+      label:'Change from a year earlier: U.S.–Mexico trade and crossings into El Paso'});
+  });
+  document.querySelectorAll('#chainTabs button').forEach(b=>b.addEventListener('click',()=>{
+    document.querySelectorAll('#chainTabs button').forEach(x=>x.setAttribute('aria-selected',String(x===b)));
+    span=+b.dataset.months; document.getElementById('chainChart').__redraw(); }));
+  document.getElementById('chainNote').innerHTML=
+    'All lines are the change from a year earlier in 3-month totals, on one axis. Crossings combine the El Paso and Ysleta ports: CBP made Ysleta a separate port on March 16, 2020. Pedestrian counts contain occasional one-month spikes as published by BTS. '+
+    '<b>A break to watch for:</b> under the General Services Administration’s preferred plan for rebuilding the Bridge of the Americas (proposed October 2024), commercial trucks would move to Ysleta–Zaragoza and Santa Teresa, NM. '+
+    'Santa Teresa is a separate port, so El Paso truck counts could fall for reasons unrelated to the economy. Adding Santa Teresa is on the list below.';
+})();
+
+/* border layer, lead/lag, watch, pipeline */
+(function(){
+  const bs=document.getElementById('borderStats');
+  const bscore=DATA.layers['Border economy'].score;
+  let d1e=el('div',{class:'stat'},bs); el('div',{class:'v',text:bscore.toFixed(0)},d1e); el('div',{class:'k',text:'trade & currency layer now ('+levelOf(bscore).name+')'},d1e);
+  const peso=LL?LL.results['Peso depreciation, 6-mo %']:null;
+  let d2e=el('div',{class:'stat'},bs); el('div',{class:'v',text:peso?('r = '+peso.best_r.toFixed(2)):'—'},d2e);
+  el('div',{class:'k',text:peso?('peso vs El Paso jobs '+peso.best_lead+' months later'):''},d2e);
+  if(LL){
+    const p=el('p',{class:'note'},document.getElementById('leadlagBox'));
+    const imp=LL.results['US imports from Mexico, YoY %'], mex=LL.results['Mexico manufacturing, YoY %'];
+    const trk=LL.results['Border crossings: trucks, YoY %'], pov=LL.results['Border crossings: personal vehicles, YoY %'];
+    const hp=(INFER&&INFER.leadlag_hac&&INFER.leadlag_hac.results)?INFER.leadlag_hac.results['Peso depreciation, 6-mo %']:null;
+    let s='<b>Does border activity lead El Paso jobs?</b> Mostly no. Trade and Mexican manufacturing move <i>with</i> El Paso jobs (r ≈ '+imp.r_at_0.toFixed(2)+' and '+mex.r_at_0.toFixed(2)+' in the same month): they confirm shocks rather than predict them. ';
+    s+=hp?'The peso is the only candidate leading signal (r = '+hp.best_r.toFixed(2)+' at '+hp.best_lead+' months), but after correcting for the 13 time lags searched, p = '+hp.best_p_bonferroni.toFixed(2)+': suggestive, not established. '
+         :(peso?'The peso is the one candidate leading signal ('+peso.best_lead+' months), descriptive only. ':'');
+    if(trk&&pov) s+='Crossings (El Paso + Ysleta) are coincident too (personal vehicles r = '+pov.r_at_0.toFixed(2)+' in the same month); the 2020–21 travel restrictions dominate their history. ';
+    s+='Correlation, not causation; full table under <a href="#inference">Research</a>.';
+    p.innerHTML=s;
+  }
+  const wb=document.querySelector('#watchTable tbody');
+  (DATA.watch||[]).forEach(w=>{
+    const tr=el('tr',{},wb); el('td',{text:w.label},tr);
+    const zt=el('td',{class:'num'},tr);
+    if(w.active) miniBar(zt,w.z,3,sgn(w.z,2),false); else zt.textContent='—';
+    const st=el('td',{},tr);
+    st.innerHTML=w.active?(w.stale?'<span style="color:var(--warning-text)">stale, ends '+fmtMo(w.asof)+'</span>':'live, '+fmtMo(w.asof)):'<span class="muted">'+esc(w.status)+'</span>';
+  });
+  const tb=document.querySelector('#pipeTable tbody');
+  [['Juárez employment, harmonized with El Paso (five sectors)','The other half of the Borderplex labor market, on the same footing as El Paso','Regional border-economy research group (to request); INEGI IMMEX as fallback','To request','next'],
+   ['Building permits (units)','An early signal for construction, about 5% of El Paso jobs','Census Building Permits Survey, El Paso MSA','Slot ready, needs data file','ready'],
+   ['Sales-tax allocations','Monthly consumer spending, including cross-border shoppers','Texas Comptroller, Allocation Historical Summary','Slot ready, needs data file','ready'],
+   ['Hotel occupancy','Visitor and event demand that payroll data misses; needs smoothing so one big weekend is not read as a boom','Source to confirm','Finding a source',''],
+   ['Bankruptcy filings','Direct measure of household and business financial distress','U.S. Courts filing statistics (local detail to confirm)','Finding a source',''],
+   ['Santa Teresa, NM and Tornillo crossings','Completes the regional crossing count and keeps truck numbers honest if the Bridge of the Americas stops taking trucks. Which ports count as “Borderplex” is a question for regional partners','BTS Border Crossing/Entry Data','Planned','next'],
+   ['Texas unemployment claims','The fastest labor-market signal available','FRED TXICLAIMS (weekly)','Needs local refresh',''],
+   ['Dallas Fed El Paso Business-Cycle Index','Benchmark the score is judged against, never an input','dallasfed.org','Needs local refresh',''],
+   ['Real-time data vintages','Checks whether the back-test survives later data revisions','ALFRED (St. Louis Fed)','Framework built, data pending','ready'],
+  ].forEach(([a,b,c,st,cls])=>{ const tr=el('tr',{},tb);
+    el('td',{text:a,style:'font-weight:600'},tr); el('td',{text:b},tr); el('td',{text:c},tr);
+    const td=el('td',{},tr); const chp=el('span',{class:'stchip'+(cls?' '+cls:'')},td); el('span',{class:'dot'},chp); chp.appendChild(document.createTextNode(st)); });
+})();
+
+/* =================== SECTORS =================== */
+(function(){
+  const box=document.getElementById('secRows');
+  const ents=Object.entries(DATA.sectors).sort((a,b)=>b[1].yoy-a[1].yoy);
+  const vals=ents.map(e=>e[1].yoy), lo=Math.min(0,...vals), hi=Math.max(0,...vals), rg=(hi-lo)||1;
+  const zero=(-lo)/rg*100;
+  ents.forEach(([name,s],idx)=>{
+    const hist=toPairs(DATA.sector_history[name]); const last=hist.length?hist[hist.length-1]:null;
+    const id='sec'+idx;
+    const b=el('button',{class:'sec',type:'button','aria-expanded':'false','aria-controls':id+'d'},box);
+    const sn=el('span',{class:'sn'},b); sn.textContent=name; el('small',{text:last?fmtMoLong(last[0]):''},sn);
+    const tr=el('span',{class:'track'},b); const z=el('span',{class:'zero'},tr); z.style.left=zero+'%';
+    const i=el('i',{},tr); const w=Math.abs(s.yoy)/rg*100;
+    i.style.left=(s.yoy>=0?zero:zero-w)+'%'; i.style.width=Math.max(.8,w)+'%'; i.style.background=s.yoy>=0?'var(--accent)':'var(--pos)';
+    const sv=el('span',{class:'sv',text:sgn(s.yoy,1)+'%'},b); sv.style.color=s.yoy>=0?'var(--ink)':'var(--pos)';
+    el('span',{class:'sx',text:(last?last[1].toFixed(1)+'k jobs · ':'')+'6-mo pace '+sgn(s.growth6m_ann,1)+'%/yr'},b);
+    const det=el('div',{class:'secdetail',id:id+'d',hidden:''},box);
+    el('div',{class:'chartbox',id:id+'c'},det);
+    let drawn=false;
+    b.addEventListener('click',()=>{ const open=det.hidden; det.hidden=!open; b.setAttribute('aria-expanded',String(open));
+      if(open&&!drawn){ drawn=true;
+        chart(id+'c',()=>{ const nb=niceBounds(hist.map(p=>p[1]),0.15);
+          lineChart(id+'c',[{name:name+' (thousand jobs)',color:'var(--accent)',width:2.2,area:true,data:hist}],
+            {h:220,hn:200,lo:nb.lo,hi:nb.hi,gridStep:nb.step,fmt:v=>v.toFixed(1)+'k',yfmt:v=>v+'k',
+             label:name+' payroll jobs in thousands, '+fmtMoLong(hist[0][0])+' to '+fmtMoLong(hist[hist.length-1][0])}); }); }
+      else if(open) document.getElementById(id+'c').__redraw();
+    });
+  });
+  const mos=[...new Set(ents.map(([n])=>{const h=toPairs(DATA.sector_history[n]); return h.length?h[h.length-1][0]:null;}).filter(Boolean))];
+  if(mos.length>1) document.getElementById('secSub').textContent+=' Sectors report on different schedules; each row shows its own reference month.';
+})();
+
+/* =================== RESEARCH =================== */
+/* outlook */
+(function(){
+  if(!HOR){ document.getElementById('outlook').hidden=true; return; }
+  const cur=HOR.current;
+  document.getElementById('outlooksub').textContent='In past months like this one ('+({Normal:'Calm',Watch:'Near normal',Elevated:'Above normal'}[cur.band]||cur.band)+
+    ' band, delay-aware score '+cur.score.toFixed(0)+'), how often did each event follow, and what does a simple model estimate?';
+  const tb=document.querySelector('#outlookTable tbody');
+  [['unemployment_+0.5pp','Unemployment rises 0.5 pp or more'],['payroll_growth_negative','Payroll growth turns negative']].forEach(([key,label])=>{
+    ['hist','model'].forEach(kind=>{
+      const tr=el('tr',{},tb); el('td',{text:kind==='hist'?label+': history':'model estimate'},tr);
+      ['3m','6m','12m'].forEach(h=>{ const d=HOR.horizons[h][key]; const td=el('td',{class:'num'},tr);
+        if(kind==='hist'){ if(d.current_band_p==null) td.textContent='—'; else probBar(td,d.current_band_p,d.index_at_65.base_rate); }
+        else probBar(td,d.current_logistic_p,null); });
+      if(kind==='hist'){ const r=['3m','6m','12m'].map(h=>HOR.horizons[h][key].index_at_65.ROC_AUC.toFixed(2));
+        el('td',{text:r.join(' / ')+(key==='payroll_growth_negative'?': good at every horizon':': good only at 3 months')},tr); }
+      else el('td',{},tr);
+    });
+  });
+})();
+
+/* benchmarks */
+(function(){
+  if(!BENCH){ document.getElementById('benchmarks').hidden=true; return; }
+  const bb=document.querySelector('#benchTable tbody');
+  const nice={borderpulse_ge65:'BorderPulse score at 65+',local_sahm_rule:'Local Sahm rule (3-mo avg unemployment +0.5 pp vs 12-mo low)',dallas_fed_bci_momentum:'Dallas Fed El Paso BCI momentum below 0'};
+  Object.entries(BENCH.rules).forEach(([name,r])=>{
+    const e1=r['unemployment_+0.5pp_6m'].episode, e2=r['payroll_growth_negative_6m'].episode; const tr=el('tr',{},bb);
+    el('td',{text:nice[name]||name},tr); el('td',{class:'num',text:String(e1.alert_episodes)},tr); el('td',{class:'num',text:String(e1.true_warnings)},tr);
+    dotMatrix(el('td',{class:'num'},tr),e1.events_detected,e1.events); dotMatrix(el('td',{class:'num'},tr),e2.events_detected,e2.events);
+    const ci=e1.episode_precision_ci95; el('td',{text:(ci&&ci[0]!=null)?((ci[0]*100).toFixed(0)+'% to '+(ci[1]*100).toFixed(0)+'%'):'—'},tr);
+  });
+  if(!BENCH.rules.dallas_fed_bci_momentum){ const tr=el('tr',{},bb); el('td',{text:nice.dallas_fed_bci_momentum},tr);
+    const td=el('td',{},tr); td.colSpan=5; td.innerHTML='<span class="muted">pending: '+esc(BENCH.bci_benchmark_status)+'</span>'; }
+  const s=BENCH.weight_sensitivity;
+  document.getElementById('benchNote').textContent='The simple Sahm-style rule catches more unemployment events than the score, with more false alarms. It is shown on purpose: a research tool should publish the benchmark it loses to. '+
+    'Weight sensitivity: equal layer weights correlate '+(s.score_correlation*100).toFixed(1)+'% with the published 40/35/25 score (largest gap '+s.max_abs_score_diff.toFixed(1)+' points'+(s.same_alert_months?'; identical alert months':'; alert months differ slightly')+').';
+})();
+
+/* does it work */
+(function(){
+  const S=VAL.summary, M=S.month_level_at_65;
+  const eb1=BENCH?BENCH.rules.borderpulse_ge65['unemployment_+0.5pp_6m'].episode:null;
+  const eb2=BENCH?BENCH.rules.borderpulse_ge65['payroll_growth_negative_6m'].episode:null;
+  const vv=document.getElementById('verdicts');
+  pill(vv,'--warning','Unemployment spikes: the score moves with them rather than ahead; a plain Sahm rule catches more');
+  pill(vv,'--good','Payroll downturns: no false alarms; one warning before (2008), one detection after the start (2020)');
+  pill(vv,'--critical','Without COVID, everything weakens: COVID carries much of the sample');
+  document.getElementById('vintro').textContent='The score was tested against targets fixed in advance, '+S.backtest_period[0]+' to '+S.backtest_period[1]+' ('+S.n_months+' months), rebuilding what was known at each month with publication delays. '+
+    'With '+S.n_deterioration_events+' deterioration events (two COVID-driven), month-level percentages overstate certainty, so the results are counted in episodes and every rate carries a wide exact interval.';
+  const stats=[[S.n_deterioration_events,'deterioration events (2 COVID-driven)'],[eb1?String(eb1.alert_episodes):'2','alert episodes since 2003'],
+    [eb1?(eb1.events_detected+' of '+eb1.events):'—','unemployment events caught'],[eb2?(eb2.events_detected+' of '+eb2.events):'—','payroll downturns caught'],
+    [eb2&&eb2.episode_precision_ci95[0]!=null?((eb2.episode_precision_ci95[0]*100).toFixed(0)+'–'+(eb2.episode_precision_ci95[1]*100).toFixed(0)+'%'):'—','95% interval, payroll alert precision'],
+    [M.ROC_AUC.toFixed(2),'month-level ROC-AUC, unemployment (0.5 = chance)']];
+  const vs=document.getElementById('vstats');
+  stats.forEach(([v,k])=>{const d=el('div',{class:'stat'},vs); el('div',{class:'v',text:String(v)},d); el('div',{class:'k',text:k},d);});
+  const bands=S.event_windows.map(w=>({from:w[0],to:w[1]}));
+  chart('valChart',()=>lineChart('valChart',[{name:'Back-test score',color:'var(--accent)',width:2,data:toPairs(VAL.timeline)}],
+    {h:280,gridStep:25,hline:65,hlineLabel:'alert at 65',bands,label:'Back-test score with deterioration windows shaded, '+S.backtest_period[0]+' to '+S.backtest_period[1]}));
+  const cc=document.querySelector('#covidCase tbody');
+  ['2020-01','2020-02','2020-03','2020-04','2020-05'].forEach(m=>{ const tr=el('tr',{},cc); el('td',{text:fmtMoLong(m)},tr);
+    [DATA.covid_backtest[m],VAL.timeline[m]].forEach(v=>{ const td=el('td',{class:'num'},tr);
+      td.innerHTML=v==null?'—':v.toFixed(0)+(v>=65?' <b style="color:var(--critical)">alert</b>':''); }); });
+  const eb=document.querySelector('#epiTable tbody');
+  VAL.episodes.forEach(e=>{ const tr=el('tr',{},eb); el('td',{text:fmtMo(e.alert_start)+' – '+fmtMo(e.alert_end)},tr);
+    el('td',{class:'num',text:String(e.score_at_start)},tr);
+    el('td',{text:e.classification==='true warning'?'Yes: the rise continued':'No: COVID already under way'},tr);
+    el('td',{class:'num',text:e.lead_months?e.lead_months+' mo':'—'},tr); });
+  const evb=document.querySelector('#evTable tbody');
+  const covNames={'2004-07':'2004 soft patch','2008-01':'2008–09 Great Recession','2010-04':'2010 double-dip drift','2010-12':'2010 late drift','2019-09':'COVID-19 lead-in','2020-10':'Late-2020 wobble'};
+  S.event_windows.forEach(w=>{ const tr=el('tr',{},evb); el('td',{text:(covNames[w[0]]||'Event')+' ('+fmtMo(w[0])+' – '+fmtMo(w[1])+')'},tr);
+    const td=el('td',{},tr); td.innerHTML=w[0]==='2008-01'?'<b>Yes</b>: alert Oct ’08, about 3 months after the start':'No'; });
+  const cb=document.querySelector('#cmpTable tbody');
+  const nice={'transparent index (>=65)':'Score at 65+','logistic regression (p>=0.5)':'Logistic regression (p ≥ 0.5)','naive base rate (never alert)':'Never alert (baseline)'};
+  const f=v=>(v==null||Number.isNaN(v))?'—':(typeof v==='number'?(v<=1?(v*100).toFixed(0)+'%':v.toFixed(2)):v);
+  S.model_comparison_oos.forEach(r=>{ const tr=el('tr',{},cb); el('td',{text:nice[r.model]||r.model},tr);
+    el('td',{class:'num',text:f(r.recall)},tr); el('td',{class:'num',text:f(r.precision)},tr); el('td',{class:'num',text:f(r.false_alarm_rate)},tr);
+    el('td',{class:'num',text:(r.ROC_AUC==null||Number.isNaN(r.ROC_AUC))?'—':r.ROC_AUC.toFixed(2)},tr); });
+  const tb2=document.querySelector('#thTable tbody');
+  S.threshold_sensitivity.forEach(r=>{ const tr=el('tr',{},tb2); el('td',{class:'num',text:String(r.threshold)},tr);
+    el('td',{class:'num',text:(r.recall*100).toFixed(0)+'%'},tr); el('td',{class:'num',text:(r.precision*100).toFixed(0)+'%'},tr); el('td',{class:'num',text:(r.false_alarm_rate*100).toFixed(1)+'%'},tr); });
+  document.getElementById('vhonest').innerHTML='<b>What holds up:</b> the alert at 65 has fired in '+(eb2?eb2.alert_episodes:2)+' episodes in 23 years, October 2008 and spring 2020, and never during an expansion. Both coincided with payroll downturns. '+
+    'Counts, not precision rates, are the defensible claim: the exact 95% interval on episode precision runs '+(eb2&&eb2.episode_precision_ci95[0]!=null?((eb2.episode_precision_ci95[0]*100).toFixed(0)+'% to '+(eb2.episode_precision_ci95[1]*100).toFixed(0)+'%'):'across nearly the full range')+'.<br>'+
+    '<b>What does not:</b> with realistic publication delays the COVID alert came in April 2020, one month after the shock. The slow deteriorations of 2004, 2010 and late 2019 were missed; months below 35 were followed by deterioration '+(100-S.calm_reliability_below_35*100).toFixed(0)+'% of the time (against a base rate of '+(M.base_rate*100).toFixed(0)+'%, so a calm reading is not a safety signal); month-level ROC-AUC is '+M.ROC_AUC.toFixed(2)+'; a plain local Sahm rule catches more unemployment events; results weaken without COVID; and the logistic benchmark does not beat never alerting out of sample. No alert level from 55 to 75 fixes the unemployment target.';
+  document.getElementById('vmethod').textContent='Method: targets fixed before evaluation (T1: El Paso unemployment up 0.5 pp within 6 months; T2: payroll growth from a year earlier negative at any point in the next 6 months, which also counts downturns already under way; T3, pending data: Dallas Fed BCI momentum turns negative). '+
+    'Scores rebuilt with expanding-window statistics and publication delays (labor and housing 1 month, trade 2 months, peso none). Exact Clopper–Pearson intervals at episode level; month-level metrics are secondary. Logistic benchmark retrained yearly; first test year 2013. '+
+    'Uses revised data, not real-time vintages, which can flatter results; the vintage audit is the top open task. 12 automated checks verify the targets and that no future data leaks into any score. Past performance does not guarantee future accuracy.';
+})();
+
+/* onset */
+(function(){
+  if(!ONSET){ document.getElementById('onSub').textContent='onset_eval.json not available for this build.'; return; }
+  const R=ONSET.results, rules=Object.keys(R);
+  document.getElementById('onSub').textContent='The payroll test above counts an alert as a success if job growth is negative at any point in the next six months, even when it already is. In the back-test, '+
+    ONSET.alert_months_with_payroll_already_negative+' of the '+ONSET.alert_months_ge65+' alert months already had negative payroll growth. This evaluation dates the start of each downturn and asks when each rule first fired, using only data that could have been published then. Rules were written down on '+ONSET.prespecified+', before scoring.';
+  const pr=R[rules[0]].payroll_onset, ur=R[rules[0]].unemployment_onset, vv=document.getElementById('onVerdict');
+  pill(vv,'--good','Payroll downturns: warned before '+pr.advance_warnings+' of '+pr.n_onsets+', spotted after '+pr.detections_after_onset);
+  pill(vv,'--warning','Unemployment rises: warned before '+ur.advance_warnings+' of '+ur.n_onsets+', spotted after '+ur.detections_after_onset+', missed '+ur.missed);
+  const tb=document.querySelector('#onTable tbody');
+  const kind={payroll_onset:'Payroll growth turns negative',unemployment_onset:'Unemployment up 0.5 pp from its 12-month low'};
+  ['payroll_onset','unemployment_onset'].forEach(t=>{ R[rules[0]][t].onsets.map(o=>o.onset).forEach(o=>{
+    rules.forEach((r,ri)=>{ const row=R[r][t].onsets.find(x=>x.onset===o); if(!row) return; const tr=el('tr',{},tb);
+      el('td',{text:ri===0?fmtMo(o)+' · '+kind[t]:'',style:ri===0?'font-weight:600':''},tr); el('td',{text:r},tr);
+      const res=el('td',{},tr); res.textContent=row.result==='advance warning'?'Warned before':row.result==='detected after onset'?'Spotted after start':'Missed';
+      res.style.fontWeight='600'; res.style.color=row.result==='advance warning'?'var(--good-text)':row.result==='missed'?'var(--pos)':'var(--ink-2)';
+      el('td',{class:'num',text:row.lead_months!=null?row.lead_months+' mo before':row.lag_months!=null?(row.lag_months===0?'same month':row.lag_months+' mo after'):'—'},tr); }); }); });
+  const sb=document.querySelector('#onSummary tbody');
+  rules.forEach(r=>['payroll_onset','unemployment_onset'].forEach(t=>{ const e=R[r][t]; const tr=el('tr',{},sb);
+    el('td',{text:r},tr); el('td',{text:kind[t]},tr); el('td',{class:'num',text:e.advance_warnings+' of '+e.n_onsets},tr);
+    el('td',{class:'num',text:String(e.detections_after_onset)},tr); el('td',{class:'num',text:String(e.missed)},tr); el('td',{class:'num',text:e.false_alarm_episodes+' of '+e.alert_episodes},tr); }));
+  const ci=pr.advance_rate_ci95;
+  document.getElementById('onNote').innerHTML='<b>Reading:</b> the score gave one true advance warning, in October 2008, two months before payroll growth turned negative. In 2020 it fired in April, the month the downturn showed up in the data. That is useful, because April data were not published until May, but it is detection, not warning. '+
+    'Neither rule warned before an unemployment rise; the local Sahm rule spots them after they start more reliably, with more false alarms. With '+pr.n_onsets+' scoreable payroll downturns, the 95% interval on the advance-warning rate runs from '+(ci[0]*100).toFixed(0)+'% to '+(ci[1]*100).toFixed(0)+'%: the honest summary is “one warning, one detection,” not a rate. Code: <code>onset_eval.py</code>.';
+})();
+
+/* border-layer test */
+(function(){
+  if(!BT){ document.getElementById('btSub').textContent='border_test.json not available for this build.'; return; }
+  const R=BT.results.targets, V=BT.variants;
+  document.getElementById('btSub').textContent='Question: '+BT.question+' The comparison was written down on '+BT.prespecified+', before any variant was scored. Targets, weights, delays and the alert rule are the published ones; only the border layer changes. Intervals come from a paired block bootstrap (12-month blocks, 1,000 draws).';
+  const f3=v=>v==null?'—':v.toFixed(2);
+  const dci=e=>e.auc_diff_vs_A==null?'—':(sgn(e.auc_diff_vs_A,2)+' ['+e.diff_ci95[0].toFixed(2)+', '+e.diff_ci95[1].toFixed(2)+']');
+  const vv=document.getElementById('btVerdict'); const promoted=Object.values(BT.promotion_candidate).some(Boolean);
+  pill(vv,promoted?'--good':'--warning',promoted?'Candidate found: needs a documented decision':'Score unchanged: no variant passed the pre-set bar');
+  const checks=v=>['T1','T2'].flatMap(T=>['full','ex_covid'].map(s=>R[T][s].variants[v].diff_ci95[0]>0)).filter(Boolean).length;
+  ['B','C'].forEach(v=>pill(vv,'--baseline',V[v].label.split(' · ')[1]+': better on '+checks(v)+' of 4 checks'));
+  const tb=document.querySelector('#btTable tbody');
+  ['A','B','C','S'].forEach(v=>['full','ex_covid'].forEach(s=>{ const e1=R.T1[s].variants[v], e2=R.T2[s].variants[v]; const tr=el('tr',{},tb);
+    el('td',{text:s==='full'?V[v].label:'',style:s==='full'?'font-weight:600':''},tr); el('td',{text:s==='full'?'All months':'Excluding 2020–21'},tr);
+    el('td',{class:'num',text:f3(e1.auc)},tr); el('td',{class:'num',text:dci(e1)},tr); el('td',{class:'num',text:f3(e2.auc)},tr); el('td',{class:'num',text:dci(e2)},tr);
+    el('td',{class:'num',text:String(e1.episodes.alert_episodes)},tr); }));
+  const aRuns=R.T1.full.variants.A.episodes.alert_runs, bRuns=R.T1.full.variants.B.episodes.alert_runs;
+  const ov=(x,y)=>!(x[1]<y[0]||y[1]<x[0]); const extra=bRuns.filter(b=>!aRuns.some(a=>ov(a,b)));
+  const exCovidEvents=R.T2.ex_covid.variants.A.episodes.events;
+  const tName={T1:'unemployment spikes',T2:'payroll downturns'}, sName={full:'across all months',ex_covid:'outside 2020–21'};
+  const fails=['T1','T2'].flatMap(T=>['full','ex_covid'].filter(s=>!(R[T][s].variants.C.diff_ci95[0]>0)).map(s=>tName[T]+' '+sName[s]));
+  let n='<b>How to read this:</b> AUC measures how well a score ranks months followed by a downturn above months that were not (0.5 = chance, 1 = perfect). A variant counts as better only where its whole 95% interval is above zero; the pre-set bar for changing the score was “better on all four checks.” ';
+  n+='Adding crossings to trade (C) clears the bar on '+checks('C')+' of 4'+(fails.length?'; it falls short on '+fails.join(' and ')+'. Outside 2020–21 only '+exCovidEvents+' payroll downturns remain, so those intervals are wide. ':'. ');
+  if(extra.length) n+='Replacing trade with crossings (B) adds an alert in '+extra.map(r=>fmtMo(r[0])+(r[1]!==r[0]?'–'+fmtMo(r[1]):'')).join(', ')+', driven by travel restrictions rather than the local economy. ';
+  n+='Crossings collapsed in 2020–21 under those restrictions, so a crossings-based layer catches COVID partly by construction; the rows excluding 2020–21 matter most. Trucks appear only as a sensitivity row, as pre-registered. '+
+    '<b>Correction (v5):</b> the first run used the El Paso port alone, which loses Ysleta’s traffic after March 2020; the rerun on El Paso + Ysleta kept the design and the conclusion. The published layer (A) matches the live back-test within '+BT.reproduction_check_max_abs_diff_A_vs_published.toFixed(2)+' points. Code: <code>border_test.py</code>.';
+  document.getElementById('btNote').innerHTML=n;
+})();
+
+/* score details: z decomposition + COVID back-test */
+(function(){
+  const box=document.getElementById('drivers');
+  const rows=DATA.drivers.slice().sort((a,b)=>b.z-a.z);
+  rows.forEach(d=>{ const p=PTS[d.key];
+    cbarRow(box,{text:INFO[d.key]?INFO[d.key].name+', '+INFO[d.key].period:d.label,meta:LAYER_NAME[d.layer]+' · '+fmtMo(d.asof)+' · reading '+(INFO[d.key]?INFO[d.key].val(d):d.raw)+(p!=null?' · '+sgn(p)+' pts':''),
+      v:d.z,max:3,vtext:sgn(d.z,2),unit:'z'}); });
+  cbarAxis(box,'eases (−3)','adds (+3)');
+  if(DATA.decomposition){ const dc=DATA.decomposition; const sum=Object.values(dc.points_vs_neutral).reduce((a,b)=>a+b,0);
+    document.getElementById('decompNote').textContent='Point shares sum to '+sum.toFixed(1)+' = score ('+dc.score.toFixed(1)+') − 50. z-contributions are exact and additive; points are pro-rata shares of the distance from 50.'; }
+  chart('covidChart',()=>lineChart('covidChart',[{name:'Score',color:'var(--accent)',width:2.4,data:toPairs(DATA.covid_backtest)}],
+    {h:260,thresholds:true,bands:[{from:'2020-03',to:'2020-08',label:'lockdown → reopening'}],label:'Score through COVID-19, September 2019 to December 2020'}));
+})();
+
+/* inference */
+(function(){
+  if(!INFER){ document.getElementById('inferReading').textContent='inference.json not available for this build.'; return; }
+  const f3=v=>(v==null||Number.isNaN(v))?'—':Number(v).toFixed(3);
+  const ci=c=>(c&&c[0]!=null)?'['+f3(c[0])+', '+f3(c[1])+']':'—';
+  document.getElementById('inferReading').innerHTML='<b>What survives:</b> '+INFER.reading.map(esc).join('<br>');
+  const B=INFER.bootstrap, bb=document.querySelector('#bootTable tbody');
+  [['ROC-AUC, unemployment +0.5 pp (T1)',B.auc_T1],['ROC-AUC, payroll downturn (T2)',B.auc_T2]].forEach(([lab,r])=>{ const tr=el('tr',{},bb); el('td',{text:lab},tr);
+    el('td',{class:'num',text:f3(r.index)},tr); el('td',{class:'num',text:ci(r.index_ci)},tr); el('td',{class:'num',text:f3(r.sahm)},tr); el('td',{class:'num',text:ci(r.sahm_ci)},tr);
+    el('td',{class:'num',text:(r.diff_index_minus_sahm>0?'+':'')+f3(r.diff_index_minus_sahm)},tr); el('td',{class:'num',text:ci(r.diff_ci)},tr); });
+  const eb=document.querySelector('#epBootTable tbody');
+  [['Unemployment +0.5 pp (T1)',B.episode_ge65_T1],['Payroll downturn (T2)',B.episode_ge65_T2],['Sahm rule, T1 (comparison)',B.episode_sahm_T1]].forEach(([lab,e])=>{ const tr=el('tr',{},eb);
+    el('td',{text:lab},tr); el('td',{class:'num',text:String(e.alert_episodes)},tr); el('td',{class:'num',text:e.precision==null?'—':e.true_warnings+' of '+e.alert_episodes},tr);
+    el('td',{class:'num',text:ci(e.precision_ci)},tr); el('td',{class:'num',text:e.recall==null?'—':e.events_detected+' of '+e.events},tr); el('td',{class:'num',text:ci(e.recall_ci)},tr); });
+  const P=INFER.placebo, pb=document.querySelector('#placeboTable tbody');
+  [['Score vs T1',P.index_T1],['Score vs T2',P.index_T2],['Sahm statistic vs T1',P.sahm_T1]].forEach(([lab,r])=>{ const tr=el('tr',{},pb); el('td',{text:lab},tr);
+    el('td',{class:'num',text:f3(r.observed_auc)},tr); el('td',{class:'num',text:f3(r.null_auc_mean)},tr); el('td',{class:'num',text:ci(r.null_auc_95)},tr);
+    const pc=el('td',{class:'num'},tr); pc.textContent=f3(r.p_auc); pc.style.fontWeight='600'; pc.style.color=r.p_auc<0.05?'var(--good-text)':'var(--ink)';
+    el('td',{class:'num',text:f3(r.p_events_detected)},tr); });
+  const hb=document.querySelector('#hacTable tbody');
+  Object.entries(INFER.leadlag_hac.results).forEach(([name,r])=>{ const tr=el('tr',{},hb); el('td',{text:name},tr);
+    el('td',{class:'num',text:(r.r_at_0>0?'+':'')+f3(r.r_at_0)},tr); el('td',{class:'num',text:f3(r.p_at_0_hac)},tr); el('td',{class:'num',text:r.best_lead+' mo'},tr);
+    el('td',{class:'num',text:(r.best_r>0?'+':'')+f3(r.best_r)},tr); el('td',{class:'num',text:f3(r.best_p_hac)},tr); el('td',{class:'num',text:f3(r.best_p_bonferroni)},tr);
+    const sg=el('td',{},tr); sg.textContent=r.best_sig_5pct_fw?'yes':'no'; sg.style.color=r.best_sig_5pct_fw?'var(--good-text)':'var(--muted)'; sg.style.fontWeight='600'; });
+  const C=INFER.calibration, cb=document.querySelector('#calibTable tbody');
+  C.T2_by_band.forEach((row,i)=>{ const r1=C.T1_by_band[i]; const tr=el('tr',{},cb); el('td',{text:row.bin},tr); el('td',{class:'num',text:String(row.n)},tr);
+    const c2=el('td',{class:'num'},tr); if(row.freq!=null) probBar(c2,row.freq,C.base_rate_T2); else c2.textContent='—';
+    const c1=el('td',{class:'num'},tr); if(r1&&r1.freq!=null) probBar(c1,r1.freq,C.base_rate_T1); else c1.textContent='—'; });
+  document.getElementById('calibNote').textContent='Bars are how often each event followed (tick = base rate: payroll '+(C.base_rate_T2*100).toFixed(0)+'%, unemployment '+(C.base_rate_T1*100).toFixed(0)+'%). '+
+    'Brier skill of score/100 against the base rate: T1 '+C.brier_score_over_100.T1_skill_vs_base_rate+', T2 '+C.brier_score_over_100.T2_skill_vs_base_rate+'. Both negative, confirming the score ranks months but is not a probability. '+C.note+'.';
+  const R=INFER.robustness, rs=document.getElementById('robStats');
+  [[R.n_configs,'configurations'],[(R.share_clean_record*100).toFixed(0)+'%','clean 2008 + 2020 record'],[(R.share_fires_2008*100).toFixed(0)+'% / '+(R.share_fires_2020*100).toFixed(0)+'%','fire in 2008 / 2020'],
+   [R.auc_T2_range[0].toFixed(2)+'–'+R.auc_T2_range[2].toFixed(2),'payroll AUC range'],[R.auc_T1_range[0].toFixed(2)+'–'+R.auc_T1_range[2].toFixed(2),'unemployment AUC range']].forEach(([v,k])=>{
+    const d=el('div',{class:'stat'},rs); el('div',{class:'v',text:String(v)},d); el('div',{class:'k',text:k},d); });
+  const rb=document.querySelector('#robTable tbody'), byW={}; R.grid.forEach(g=>{ (byW[g.weights]=byW[g.weights]||[]).push(g); });
+  Object.entries(byW).forEach(([w,gs])=>{ const tr=el('tr',{},rb); el('td',{text:w},tr); el('td',{class:'num',text:String(gs.length)},tr);
+    const a1=gs.map(g=>g.auc_T1), a2=gs.map(g=>g.auc_T2);
+    el('td',{class:'num',text:Math.min(...a1).toFixed(2)+'–'+Math.max(...a1).toFixed(2)},tr); el('td',{class:'num',text:Math.min(...a2).toFixed(2)+'–'+Math.max(...a2).toFixed(2)},tr);
+    el('td',{class:'num',text:gs.filter(g=>g.fires_2008&&g.fires_2020).length+' of '+gs.length},tr); el('td',{class:'num',text:gs.filter(g=>g.n_other_alert_episodes===0).length+' of '+gs.length},tr); });
+  const vb=document.getElementById('vintageBox'); el('h3',{class:'h3',text:'Real-time vintage audit (ALFRED)'},vb);
+  const vp=el('p',{class:'note'},vb);
+  vp.textContent=(VINTAGE&&VINTAGE.status==='complete')?'Back-test rebuilt on as-published data for '+VINTAGE.series_audited.join(', ')+' ('+VINTAGE.n_vintages+' vintages). '+(VINTAGE.summary_text||'')
+    :((VINTAGE&&VINTAGE.summary_text)||'Framework built (vintage_audit.py); the as-published vintages must be exported from ALFRED on a machine with full internet access. Until then every result uses revised data, which can flatter real-time performance: the largest open caveat.');
+})();
+
+/* research lab */
+(function(){
+  if(!LAB){ document.getElementById('researchlab').hidden=true; return; }
+  const months=LAB.months, KEYS=Object.keys(LAB.features), LAYERS3=['labor','border','household'];
+  const squash=z=>100/(1+Math.exp(-LAB.squash.slope*z));
+  const labels={ur_mom:'El Paso unemployment, 6-mo change',emp_yoy:'El Paso payroll growth',imports_yoy:'Imports from Mexico',exports_yoy:'Exports to Mexico',peso_mom:'Peso, 6-mo move',listings_yoy:'Home listings',dom_yoy:'Days on market'};
+  const lname={labor:'labor',border:'trade & currency',household:'housing'};
+  const indBox=document.getElementById('labInd');
+  KEYS.forEach(k=>{ const lab=el('label',{},indBox); const cb=el('input',{type:'checkbox',id:'ind_'+k},lab); cb.checked=true;
+    lab.appendChild(document.createTextNode((labels[k]||k)+' ('+(lname[LAB.feature_meta[k].layer]||LAB.feature_meta[k].layer)+')')); });
+  const $=id=>document.getElementById(id);
+  const settings=()=>({w:{labor:+$('wLabor').value,border:+$('wBorder').value,household:+$('wHouse').value},inc:KEYS.filter(k=>$('ind_'+k).checked),
+    target:$('labTarget').value,thr:+$('labThr').value,hor:+$('labHor').value,alert:+$('labAlert').value});
+  function computeScores(st){ const out={};
+    months.forEach((m,i)=>{ const per={};
+      st.inc.forEach(k=>{ const z=LAB.features[k][i]; if(z!=null)(per[LAB.feature_meta[k].layer]=per[LAB.feature_meta[k].layer]||[]).push(z); });
+      if(!per.labor||!per.border) return;
+      let ws=0,zc=0; for(const L of LAYERS3){ if(per[L]){ const w=st.w[L]; ws+=w; zc+=w*per[L].reduce((a,b)=>a+b,0)/per[L].length; } }
+      if(ws<=0) return; out[m]=Math.round(squash(zc/ws)*10)/10; });
+    return out; }
+  function computeTarget(st){ const out={};
+    months.forEach(m=>{
+      if(st.target==='ur'){ const base=LAB.ur[m]; if(base==null) return; let mx=null;
+        for(let k=1;k<=st.hor;k++){ const v=LAB.ur[madd(m,k)]; if(v==null) return; mx=mx==null?v-base:Math.max(mx,v-base); }
+        out[m]=Math.round(mx*10)>=Math.round(st.thr*10)?1:0; }
+      else { let neg=false; for(let k=1;k<=st.hor;k++){ const v=LAB.emp_yoy[madd(m,k)]; if(v==null) return; if(v<0) neg=true; } out[m]=neg?1:0; } });
+    return out; }
+  const runsOf=(flag,ms)=>{ const runs=[]; let cur=null; ms.forEach(m=>{ if(flag[m]) cur=cur?[cur[0],m]:[m,m]; else if(cur){ runs.push(cur); cur=null; } }); if(cur) runs.push(cur); return runs; };
+  const overlap=(a,b)=>!(a[1]<b[0]||b[1]<a[0]);
+  let S=null;
+  function compute(){
+    const st=settings();
+    $('wLaborV').textContent=st.w.labor; $('wBorderV').textContent=st.w.border; $('wHouseV').textContent=st.w.household;
+    $('thrV').textContent=st.thr.toFixed(1)+' pp'; $('horV').textContent=st.hor+' months'; $('alertV').textContent=st.alert;
+    $('labThr').disabled=st.target!=='ur';
+    const sc=computeScores(st), tg=computeTarget(st), ms=months.filter(m=>sc[m]!=null&&tg[m]!=null);
+    const aRuns=runsOf(Object.fromEntries(ms.map(m=>[m,sc[m]>=st.alert])),ms), eRuns=runsOf(tg,ms);
+    const trueWarn=aRuns.filter(a=>eRuns.some(e=>overlap(a,e))).length, det=eRuns.filter(e=>aRuns.some(a=>overlap(a,e))).length;
+    const sv=$('labStats'); sv.innerHTML='';
+    [[aRuns.length,'alert episodes'],[trueWarn,'true warnings'],[aRuns.length-trueWarn,'false alarms'],[det+' of '+eRuns.length,'events caught'],[ms.length,'months evaluated']]
+      .forEach(([v,k])=>{ const d=el('div',{class:'stat'},sv); el('div',{class:'v',text:String(v)},d); el('div',{class:'k',text:k},d); });
+    $('labConfig').textContent='config '+JSON.stringify(st);
+    S={st,sc,tg,ms,eRuns};
+  }
+  function draw(){
+    if(!S) compute();
+    const axis=S.ms.filter(m=>VAL.timeline[m]!=null);
+    lineChart('labChart',[{name:'Published',color:'var(--baseline)',width:1.6,data:axis.map(m=>[m,VAL.timeline[m]])},
+      {name:'Your model',color:'var(--accent)',width:2.2,data:axis.map(m=>[m,S.sc[m]])}],
+      {h:280,gridStep:25,hline:S.st.alert,hlineLabel:'alert at '+S.st.alert,table:false,
+       empty:'No month can be scored with these settings. The model needs at least one labor and one trade & currency indicator, with a weight above zero on each layer you keep.',
+       bands:S.eRuns.map(e=>({from:e[0],to:e[1]})),label:'Your model compared with the published score'});
+  }
+  const update=()=>{ compute(); $('labChart').__redraw(); };
+  ['wLabor','wBorder','wHouse','labTarget','labThr','labHor','labAlert'].forEach(id=>$(id).addEventListener('input',update));
+  KEYS.forEach(k=>$('ind_'+k).addEventListener('change',update));
+  $('labReset').addEventListener('click',()=>{ $('wLabor').value=40; $('wBorder').value=35; $('wHouse').value=25; $('labTarget').value='ur';
+    $('labThr').value=0.5; $('labHor').value=6; $('labAlert').value=65; KEYS.forEach(k=>{ $('ind_'+k).checked=true; }); update(); });
+  compute(); chart('labChart',draw);
+  getSaver().then(dl=>{ const btn=$('labExport'); btn.hidden=false;
+    btn.addEventListener('click',async()=>{ if(!S||!S.ms.length) return;
+      const rows=['month,your_score,published_score,event']; S.ms.forEach(m=>rows.push(m+','+S.sc[m]+','+(VAL.timeline[m]??'')+','+S.tg[m]));
+      rows.push('','# '+$('labConfig').textContent); await dl.save({filename:'borderpulse_lab_results.csv',data:rows.join('\n')}); }); });
+})();
+
+/* data & methods */
+(function(){
+  document.getElementById('dmIntro').textContent='Everything here is reproducible from public data with the open Python pipeline (CSV in, JSON out). Maintained by Marcus (marcusjhunt01@gmail.com); code, data and method notes are available on request, and a public repository is planned. Model v'+
+    (DATA.version||'')+', data retrieved '+(DATA.data_retrieved||'—')+', page built '+(DATA.generated||'')+'.';
+  document.getElementById('methodintro').textContent='Each indicator becomes a pressure signal (rising unemployment adds pressure; falling trade adds pressure), is compared with its own history up to that month, averaged within its layer, weighted, and converted to 0–100. The score answers one question: compared with El Paso’s record since 2000, how unusual is the pressure on the local economy right now?';
+  document.getElementById('dmRepro').innerHTML='<b>Reproducibility:</b> <code>python3 refresh.py --no-fetch</code> reruns pipeline → back-test → 12 leakage checks → benchmarks → lead/lag → horizons → inference → border test → onset evaluation → vintage audit → manifest → technical note → dashboard → brief. '+
+    'Pinned <code>requirements.txt</code> (Python 3.11), <code>CITATION.cff</code>, <code>CHANGELOG.md</code> and the technical note (<a href="technical_note.pdf" target="_blank" rel="noopener">PDF</a>) ship with the code. Every number in the note comes from the same JSON files that feed this page.';
+  if(MANIFEST&&MANIFEST.files){ const mt=document.querySelector('#manifestTable tbody');
+    MANIFEST.files.forEach(r=>{ const tr=el('tr',{},mt); const td=el('td',{},tr); el('code',{text:r.file.replace(/^data\//,'')},td);
+      el('td',{text:r.series_id||''},tr); el('td',{text:(r.first||'').slice(0,7)+'–'+(r.last||'').slice(0,7)},tr); el('td',{text:String(r.rows)},tr); el('td',{text:r.retrieved||''},tr);
+      const h=el('td',{},tr); el('code',{text:r.sha256.slice(0,16)+'…'},h); h.title=r.sha256; });
+    document.getElementById('manifestNote').textContent=MANIFEST.n_files+' files · generated '+MANIFEST.generated+'. '+MANIFEST.note+' Hover a hash for the full digest.'; }
+  const DICT=[
+    ['ELPA348UR','FRED / BLS LAUS: El Paso MSA unemployment (SA)','6-mo difference → z','t−1','2000-01','Score input (labor) + target T1'],
+    ['ELPA348NAN','FRED / BLS CES: El Paso nonfarm payrolls (NSA)','change from a year earlier → z','t−1','2000-01','Score input (labor) + target T2'],
+    ['ELPA348{TRADN,GOVTN,NRMNN,MFGN,EDUHN,LEIHN,PBSVN}','FRED / BLS CES: El Paso sector payrolls','growth rates only','t−1','2015-01','Display only, never scored'],
+    ['IMPMX / EXPMX','FRED / Census: U.S.–Mexico goods trade','change from a year earlier → z','t−2','2000-01','Score inputs (trade & currency)'],
+    ['EXMXUS','FRED: peso/dollar','6-mo % change → z','t−0','2000-01','Score input (trade & currency)'],
+    ['ACTLISCOU21340 / MEDDAYONMAR21340','FRED / Realtor.com: El Paso CBSA housing','change from a year earlier → z (min 24 obs)','t−1','2016-07 (usable mid-2019)','Score inputs (housing); regime change marked'],
+    ['TXUR / UNRATE','FRED: Texas and U.S. unemployment','same labor transform','t−1','2015-01','Comparison + divergence rule'],
+    ['LASC735UR','FRED / BLS LAUS: Las Cruces MSA unemployment (SA)','same labor transform','t−1','2015-01','Comparison only, never scored'],
+    ['BTS crossings: trucks / personal vehicles / pedestrians','BTS Border Crossing/Entry Data (keg4-3bc2), El Paso port 2402 + Ysleta port 2401 from 2020-03','change from a year earlier of 3-mo totals (border panel and test) · z, El Paso port only (watch)','~t−1–2','1996-01','Context + watch, never scored; Santa Teresa and Tornillo not included'],
+    ['Dallas Fed El Paso BCI','dallasfed.org (monthly xlsx)','6-mo momentum rule','t−1','pending local fetch','Benchmark + target T3, never an input'],
+    ['TXICLAIMS / BUSAPPWNSATX / permits / sales tax / IMMEX Juárez','FRED weekly · Census BPS · TX Comptroller · INEGI','watch slots','—','pending','Watch, inactive until data lands'],
+  ];
+  const dtb=document.querySelector('#dictTable tbody');
+  DICT.forEach(r=>{ const tr=el('tr',{},dtb); r.forEach((c,i)=>{ const td=el('td',{},tr); if(i===0) el('code',{text:c},td); else td.textContent=c; }); });
+  const CONST=[
+    ['Layer weights','40 / 35 / 25','Convention','equal weights correlate '+(BENCH?(BENCH.weight_sensitivity.score_correlation*100).toFixed(1):'~99')+'% (benchmarks.json)'],
+    ['Alert level','score ≥ 65','Convention','alert-level grid 55–75 published; none fixes target T1'],
+    ['Squash slope','1.1 logistic','Convention','display transform; rankings unchanged'],
+    ['z-clip','±3','Convention','limits single-month dominance'],
+    ['Minimum history','36 obs (24 housing)','Convention','shorter = noisier early z-scores'],
+    ['Divergence rule','±10 pts, 2 months','Convention','historical frequency shown with the badge'],
+    ['Headline month','latest month with all expected indicators','Convention','later partial months are labeled preliminary'],
+    ['Expanding-window z','no look-ahead','Validated','12 automated leakage checks pass'],
+    ['Publication delays','labor/housing t−1, trade t−2','Validated','2 automated delay checks pass'],
+  ];
+  const ctb=document.querySelector('#constTable tbody');
+  CONST.forEach(([a,b,s,d])=>{ const tr=el('tr',{},ctb); el('td',{text:a},tr); el('td',{text:b},tr);
+    const td=el('td',{},tr); el('span',{class:s==='Validated'?'status-val':'status-conv',text:s},td); el('td',{text:d},tr); });
+  document.getElementById('dmLimits').textContent='Six deterioration events since 2003, two COVID-driven: every performance figure carries wide uncertainty and is reported as episode counts with exact intervals. The back-test uses revised data; publication delays are modeled but revisions are not (the ALFRED vintage audit is the top open task). '+
+    'The housing layer exists only from 2018; earlier scores are a two-layer model (marked on the history chart). BTS crossings: CBP split Ysleta into its own port on 2020-03-16; the border panel and border test add Ysleta back, the watch rows and lead/lag study do not yet. '+
+    'The Overview history and the back-test share one model; they differ only by publication delays, which the back-test applies. Lead/lag correlations use overlapping windows and are descriptive. National U.S.–Mexico trade measures the corridor, not local demand. '+
+    'A rebuild of the Bridge of the Americas under GSA’s preferred plan would move commercial trucks to other ports, breaking the El Paso truck series. Nothing here is a calibrated probability.';
+  const VERS=[
+    ['v1','2026-08-25','Initial composite score and dashboard'],
+    ['v2','2026-08-26','Delay-aware back-test, 12 leakage checks, horizons, lead/lag, watch slots, monthly refresh'],
+    ['v2.0.1','2026-08-28','Monthly data refresh'],
+    ['v3.0.0','2026-09-03','Episode-first inference with exact intervals; Sahm-rule and Dallas Fed BCI benchmarks; BTS crossings; score uncertainty range; decomposition and change attribution; divergence rule; Research Lab; Data & methods; removed unvalidated sector color codes and audience advice'],
+    ['v3.1.0','2026-10-01','Plain-language “why” panel, data-timing labels, regional comparison bars, history time ranges, downloadable brief, audience cards, gauge and sparklines'],
+    ['v3.2.0','2026-10-01','Tabbed layout, home panel with live tiles, expandable indicator explanations, toggleable comparison series'],
+    ['v4.0.0','2026-10-01','Headline is the latest complete month (partial months are preliminary). Inference module (bootstrap, placebo, HAC, calibration, robustness), vintage-audit framework, reproducibility package'],
+    ['v4.1.0','2026-10-11','Las Cruces comparison; border chain panel; pre-registered trade vs crossings test (composite unchanged); “Data on the way”'],
+    ['v5.0.0','2026-10-12','One model: the dashboard uses the back-test definitions. Onset evaluation (warning vs detection). Crossings combine El Paso and Ysleta ports; border test rerun, conclusion unchanged. Data refreshed (headline Aug 2026). Fixes to dates, alignment, labels, downloads and contrast'],
+    ['v5.0.1','2026-10-12','Clearer “why the score is” panel: typical values, worded effects, a tally, exact point sums'],
+    ['v6.1.1','2026-10-20','Source code, data and every validation output published as an open GitHub repository (MIT license), with a continuous-integration check that reruns the back-test and leakage checks on every change. Score, model and data unchanged.'],
+    ['v6.1.0','2026-10-13','New look based on Marcus’s reference design: navy banner with a mountain skyline, a navy sidebar for the four sections, a filter bar (compare to, time range, download report), a semicircle pressure gauge with level guide, a numbered “Why is the score 40?” panel with point badges, a key-indicators table, a history chart with colored level bands, a regional comparison bar chart and three audience views. Green now marks indicators that ease pressure. Display only; score and model unchanged.'],
+    ['v6.0.0','2026-10-12','Redesign for reading order. Overview leads with a one-line conclusion, the score and its monthly change beside a history chart, three component readings, what moved the score, why it sits where it does, and data coverage. Nine tabs became four (Overview, Indicators, Sectors, Research). Charts redraw at the screen’s width, work with touch and keyboard, and include a values table. Indicators follow one pattern with a source link on each; sectors are ranked bars with their own reference month. New type, spacing and color system with written meanings for every color. Display only; the score and model are unchanged.'],
+  ];
+  const vtb=document.querySelector('#verTable tbody'); VERS.slice().reverse().forEach(r=>{ const tr=el('tr',{},vtb); r.forEach(c=>el('td',{text:c},tr)); });
+  document.getElementById('dmCite').innerHTML='<b>Suggested citation:</b> Marcus (2026). BorderPulse: an open early-warning laboratory for the El Paso–Juárez Borderplex economy, v'+esc(DATA.version||'')+
+    ', technical note and code (CITATION.cff). Data: FRED (St. Louis Fed), BTS, Realtor.com via FRED. Methods: Sahm (2019); Newey & West (1987); Künsch (1989); Clopper & Pearson (1934); Wilson (1927); Dallas Fed metro business-cycle indexes; UTEP Border Region Modeling Project.';
+  getSaver().then(dl=>{
+    document.getElementById('dmDownloads').hidden=false;
+    document.getElementById('dmDlNote').textContent='The dataset is one tidy CSV (series, date, value) covering every input, comparison and watch series on this page, including full BTS crossings history for the El Paso and Ysleta ports.';
+    document.getElementById('dlTidy').addEventListener('click',()=>dl.save({filename:'borderpulse_dataset.csv',data:TIDY_CSV}));
+    document.getElementById('dlMonthly').addEventListener('click',()=>dl.save({filename:'borderpulse_backtest_monthly.csv',data:MONTHLY_CSV}));
+    if(TECHNOTE_MD){ const nv=(TECHNOTE_MD.match(/model v(\d+\.\d+\.\d+)/)||[])[1]||''; const bn=document.getElementById('dlNote'); bn.hidden=false;
+      if(nv&&nv!==DATA.version) bn.textContent='Download technical note (.md, v'+nv+')';
+      bn.addEventListener('click',()=>dl.save({filename:'borderpulse_technical_note_v'+(nv||DATA.version)+'.md',data:TECHNOTE_MD})); }
+    if(BRIEF_MD){ document.getElementById('briefDl').hidden=false;
+      document.getElementById('dlBrief').addEventListener('click',()=>dl.save({filename:'borderpulse_brief_'+DATA.asof+'.md',data:BRIEF_MD})); }
+  });
+})();
+
+/* =================== router =================== */
+const PANELS=['overview','indicators','sectors','research'];
+const LEGACY={home:'overview',month:'overview',history:'overview',validation:'doesitwork',lab:'researchlab',data:'datamethods'};
+function showTab(name){
+  if(!PANELS.includes(name)) name='overview';
+  PANELS.forEach(p=>{ const d=document.getElementById('p-'+p); if(d) d.hidden=(p!==name); });
+  document.querySelectorAll('#tabnav button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===name)));
+  try{ history.replaceState(null,'','#'+name); }catch(_){}
+}
+function route(hash){
+  let h=(hash||'').replace(/^#/,''); if(!h){ showTab('overview'); return; }
+  if(LEGACY[h]) h=LEGACY[h];
+  if(PANELS.includes(h)){ showTab(h); window.scrollTo({top:0}); return; }
+  const target=document.getElementById(h); const panel=target&&target.closest('.panel');
+  if(panel){ showTab(panel.id.slice(2)); setTimeout(()=>target.scrollIntoView({behavior:'smooth',block:'start'}),40); }
+  else showTab('overview');
+}
+document.querySelectorAll('#tabnav button').forEach(b=>b.addEventListener('click',()=>{ showTab(b.dataset.tab); document.querySelector('.layout').scrollIntoView({behavior:'smooth',block:'start'}); }));
+document.addEventListener('click',e=>{ const a=e.target.closest('a[href^="#"]'); if(!a) return; const h=a.getAttribute('href'); if(h.length<2) return; e.preventDefault(); route(h); });
+window.addEventListener('hashchange',()=>route(location.hash));
+route(location.hash);
+</script>

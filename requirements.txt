@@ -1,0 +1,12 @@
+# BorderPulse — core dependencies.
+# Release pins (2026-10-01 technical note): numpy==2.4.4, scipy==1.17.1, scikit-learn==1.8.0 on Python 3.11.
+# Any numpy 2.x / scipy 1.17+ / scikit-learn 1.8+ reproduces the published results (seeds are fixed);
+# the floors below keep `pip install -r requirements.txt` working on newer Pythons.
+numpy>=2.4,<3
+scipy>=1.17,<2
+scikit-learn>=1.8,<2
+
+# Optional — local data refresh only (Dallas Fed xlsx benchmark):
+#   pandas>=2.2  openpyxl>=3.1
+# Optional — PDF rendering of the technical note:
+#   playwright>=1.47   (then: playwright install chromium)
