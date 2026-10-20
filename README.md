@@ -1,6 +1,8 @@
-# BorderPulse 🌵
+# BorderPulse
 
 **An open early-warning laboratory for the El Paso–Juárez Borderplex economy.**
+
+[![Reproduce and check](https://github.com/MarcusHunt090/borderpulse/actions/workflows/ci.yml/badge.svg)](https://github.com/MarcusHunt090/borderpulse/actions/workflows/ci.yml) · [Technical note](technical_note.md) · [Reproduction guide](RUNBOOK.md) · [MIT license](LICENSE)
 
 BorderPulse compresses seven public monthly indicators for the El Paso metro area into a 0–100 index of economic stress, back-tests it against targets that were fixed *before* any result was seen, and publishes every result — including the negative ones — with honest small-sample inference. Everything here reruns from raw CSVs with one command.
 
@@ -9,6 +11,10 @@ BorderPulse compresses seven public monthly indicators for the El Paso metro are
 - **Current headline (model v6.1):** August 2026 · **40 / 100 · Near normal** · employment alert not active
 
 > This is a transparent screening device for unusual local conditions — stronger at confirming stress than predicting it. It is not a forecast, not a probability, and not official statistics.
+
+![BorderPulse dashboard showing the regional stress score, its drivers, and indicator comparisons](assets/dashboard-preview.jpg)
+
+*Dashboard snapshot for August 2026. The [technical note](technical_note.md) explains the data, methods, and validation.*
 
 ## What the score is
 
