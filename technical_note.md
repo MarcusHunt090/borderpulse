@@ -1,4 +1,4 @@
-# BorderPulse v6.1.1: an open early-warning laboratory for the El Paso–Juárez Borderplex economy
+# BorderPulse v6.2.0: an open early-warning laboratory for the El Paso–Juárez Borderplex economy
 **Technical note · 2026-10-20 · headline month August 2026 · data retrieved 2026-10-12**  
 Marcus (maintainer) · marcusjhunt01@gmail.com · live dashboard: https://claude.ai/code/artifact/abaddafa-f6ba-4f07-9c38-50de4ac39816
 
@@ -35,7 +35,7 @@ The Borderplex has no public, monthly, locally-focused stress gauge that is both
 | `data/full/us_exports_mexico.csv` | EXPMX | FRED / Census FT-900 | 2000-01–2026-08 | 320 | `ff54173aabeb` |
 | `data/full/us_imports_mexico.csv` | IMPMX | FRED / Census FT-900 | 2000-01–2026-08 | 320 | `345e49dfe37e` |
 
-Full manifest with retrieval dates: `data/MANIFEST.json` (34 files, generated 2026-10-12), including the six BTS crossing files. All inputs are the latest available vintage at retrieval; Section 8 describes the real-time audit. Payroll series are not seasonally adjusted (NSA), so both the dashboard and the back-test use 12-month changes for employment (v5; earlier dashboards used 6-month changes). BTS port-of-entry crossings (1996→) are context and watch indicators only. CBP made Ysleta a separate port (2401) from El Paso (2402) on 16 March 2020; the border panel, lead/lag study and border-layer test add Ysleta back from that month, which removes what earlier versions described as a reporting break.
+Full manifest with retrieval dates: `data/MANIFEST.json` (34 files, generated 2026-10-20), including the six BTS crossing files. All inputs are the latest available vintage at retrieval; Section 8 describes the real-time audit. Payroll series are not seasonally adjusted (NSA), so both the dashboard and the back-test use 12-month changes for employment (v5; earlier dashboards used 6-month changes). BTS port-of-entry crossings (1996→) are context and watch indicators only. CBP made Ysleta a separate port (2401) from El Paso (2402) on 16 March 2020; the border panel, lead/lag study and border-layer test add Ysleta back from that month, which removes what earlier versions described as a reporting break.
 
 ## 3. Index construction
 **Stress signals.** For indicator *i* with raw series *x<sub>i,t</sub>*, the stress signal *s<sub>i,t</sub>* is: unemployment, 6-month difference; payrolls, −(12-month % change); imports and exports, −(12-month % change); peso, 6-month % change (depreciation positive); listings, 12-month % change; days on market, 12-month difference. Signs are chosen so that larger values mean more stress. The same definitions drive the dashboard and the back-test; every dashboard *z*, shifted by its publication lag, equals the back-test feature.
@@ -81,7 +81,7 @@ With realistic publication lags the COVID alert fires in April 2020, one month a
 |---|---|---|---|---|---|---|
 | ROC-AUC, T1 | 0.472 | [0.165, 0.736] | 0.606 | [0.415, 0.781] | -0.134 | [-0.459, 0.198] |
 | ROC-AUC, T2 | 0.825 | [0.634, 0.946] | 0.892 | [0.731, 0.991] | -0.067 | [-0.296, 0.146] |
-| PR-AUC, T1 | 0.207 | [0.044, 0.419] | | | | |
+| PR-AUC, T1 | 0.206 | [0.045, 0.424] | | | | |
 
 Circular moving-block bootstrap, block length 12 months, B = 1000 (Künsch 1989). Placebo tests rotate the score path against the target by every offset of at least 13 months: p(AUC) = 0.563 for T1 and 0.000 for T2; the null mean AUC is 0.49 for T2 with 95% range [0.251, 0.763]. Episode-level bootstrap intervals: T2 recall [0.164, 1.000]; the T2 precision interval is degenerate at 1 because every resampled alert block lies inside a downturn — a reminder that two episodes cannot estimate a rate.
 
@@ -158,4 +158,4 @@ Phillips, K. R. (2004). A new monthly index of the Texas business cycle. Federal
 Sahm, C. (2019). Direct stimulus payments to individuals. In *Recession Ready: Fiscal Policies to Stabilize the American Economy*, Brookings/Hamilton Project.  
 Wilson, E. B. (1927). Probable inference, the law of succession, and statistical inference. *JASA* 22, 209–212.  
 
-*Generated 2026-10-20 by make_technote.py from the pipeline outputs; model v6.1.1.*
+*Generated 2026-10-20 by make_technote.py from the pipeline outputs; model v6.2.0.*

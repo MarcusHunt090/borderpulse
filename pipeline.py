@@ -18,7 +18,7 @@ then mapped to 0-100 via a logistic squash.
 import json, math, csv, os, random, datetime
 from collections import OrderedDict
 
-VERSION = "6.1.1"   # v6.1.1: GitHub release packaging (model unchanged). v6.x are display redesigns (model unchanged). v5: ONE MODEL — the dashboard now uses exactly the back-test definitions (payroll YoY,
+VERSION = "6.2.0"   # v6.2: data explorer and refresh provenance fixes; score model unchanged. v5: ONE MODEL — the dashboard now uses exactly the back-test definitions (payroll YoY,
                     # not 6-mo; z-score history from 2000 via data/full/), verified feature-by-feature against
                     # validation/lab_data.json. Level names describe distance from normal; "Housing market"
                     # renamed "Housing market"; combined El Paso + Ysleta crossings; data-retrieval date exposed.

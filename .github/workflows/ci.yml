@@ -12,12 +12,19 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Data explorer calendar, missing values and CSV checks
+        run: node --test test_explorer.cjs
       - name: Install dependencies
         run: pip install -r requirements.txt
       - name: Score the latest month
         run: python3 pipeline.py
       - name: Back-test and 12 leakage checks
-        run: python3 test_backtest.py
+        run: |
+          python3 test_backtest.py
+          python3 test_metrics.py
       - name: Benchmarks, lead/lag, horizons, inference
         run: |
           python3 benchmarks.py
@@ -44,5 +51,7 @@ jobs:
       - name: Build the dashboard
         run: |
           python3 make_technote.py
-          python3 build.py
           python3 make_brief.py > /dev/null
+          python3 build.py
+      - name: Provenance and self-contained artifact regression checks
+        run: python3 test_release.py

@@ -53,7 +53,7 @@
   "F1": 0.255,
   "balanced_accuracy": 0.574,
   "ROC_AUC": 0.472,
-  "PR_AUC": 0.207,
+  "PR_AUC": 0.206,
   "Brier_score_over_100": 0.236,
   "base_rate": 0.125
  },
@@ -149,7 +149,7 @@
    "F1": NaN,
    "balanced_accuracy": 0.48,
    "ROC_AUC": 0.75,
-   "PR_AUC": 0.119,
+   "PR_AUC": 0.118,
    "Brier": 0.238,
    "model": "transparent index (>=65)"
   },
@@ -183,7 +183,7 @@
    "F1": NaN,
    "balanced_accuracy": 0.5,
    "ROC_AUC": 0.5,
-   "PR_AUC": 0.052,
+   "PR_AUC": 0.051,
    "Brier": 0.048,
    "model": "naive base rate (never alert)"
   }

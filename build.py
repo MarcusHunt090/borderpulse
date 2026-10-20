@@ -12,6 +12,7 @@ import json, os, csv
 base = os.path.dirname(os.path.abspath(__file__))
 data = json.load(open(os.path.join(base, "borderpulse_output.json")))
 body = open(os.path.join(base, "dashboard_body.html")).read()
+body = body.replace("/*__EXPLORER_JS__*/", open(os.path.join(base, "explorer.js")).read())
 body = body.replace("/*__DATA__*/", json.dumps(data, separators=(",", ":")))
 
 # validation payload (from backtest.py outputs)
@@ -68,7 +69,7 @@ body = body.replace("/*__MANIFEST__*/", json.dumps(json.load(open(mf)), separato
 tn = os.path.join(base, "technical_note.md")
 body = body.replace("/*__TECHNOTE__*/", json.dumps(open(tn).read() if os.path.exists(tn) else ""))
 
-left = [ph for ph in ("__DATA__", "__VALIDATION__", "__BORDERTEST__", "__ONSET__", "__HORIZONS__", "__LEADLAG__", "__BENCH__", "__LAB__",
+left = [ph for ph in ("__EXPLORER_JS__", "__DATA__", "__VALIDATION__", "__BORDERTEST__", "__ONSET__", "__HORIZONS__", "__LEADLAG__", "__BENCH__", "__LAB__",
                       "__INFER__", "__VINTAGE__", "__TIDY__", "__MONTHLY__", "__BRIEF__", "__MANIFEST__", "__TECHNOTE__") if "/*" + ph + "*/" in body]
 if left:
     raise SystemExit("unfilled placeholders: " + ", ".join(left))
