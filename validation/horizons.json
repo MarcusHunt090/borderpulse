@@ -15,7 +15,7 @@
      "F1": 0.324,
      "balanced_accuracy": 0.658,
      "ROC_AUC": 0.746,
-     "PR_AUC": 0.255,
+     "PR_AUC": 0.254,
      "base_rate": 0.059,
      "n": 272
     },
@@ -61,7 +61,7 @@
      "F1": 0.75,
      "balanced_accuracy": 0.8,
      "ROC_AUC": 0.864,
-     "PR_AUC": 0.749,
+     "PR_AUC": 0.748,
      "base_rate": 0.129,
      "n": 272
     },
@@ -109,7 +109,7 @@
      "F1": 0.255,
      "balanced_accuracy": 0.574,
      "ROC_AUC": 0.472,
-     "PR_AUC": 0.207,
+     "PR_AUC": 0.206,
      "base_rate": 0.125,
      "n": 272
     },
@@ -249,7 +249,7 @@
      "F1": 0.568,
      "balanced_accuracy": 0.698,
      "ROC_AUC": 0.716,
-     "PR_AUC": 0.604,
+     "PR_AUC": 0.603,
      "base_rate": 0.199,
      "n": 266
     },

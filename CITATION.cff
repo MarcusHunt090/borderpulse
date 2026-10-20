@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 message: "If you use BorderPulse, please cite it as below."
 title: "BorderPulse: an open early-warning laboratory for the El Paso–Juárez Borderplex economy"
-version: 6.1.1
+version: 6.2.0
 date-released: 2026-10-20
 authors:
   - family-names: Hunt

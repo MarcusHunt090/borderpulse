@@ -1,7 +1,7 @@
 {
- "generated": "2026-10-12",
+ "generated": "2026-10-20",
  "n_files": 34,
- "note": "Hashes identify the exact inputs behind a published result. Any refresh changes them; compare against the CHANGELOG entry for the release you are replicating.",
+ "note": "Hashes identify the exact inputs behind a published result. Retrieval dates are preserved for unchanged files; an offline rebuild is not a data refresh.",
  "files": [
   {
    "file": "data/ep_active_listings.csv",
@@ -145,7 +145,7 @@
    "source": "FRED / BLS LAUS",
    "description": "Las Cruces MSA unemployment rate (smoothed SA) \u2014 comparison only",
    "retrieved": "2026-10-11 (FRED current vintage via fred.stlouisfed.org/data pages)",
-   "vintage": "latest available (revised) at retrieval"
+   "vintage": "latest available (revised) at retrieval; real-time vintages via vintage_audit.py"
   },
   {
    "file": "data/mex_manufacturing.csv",

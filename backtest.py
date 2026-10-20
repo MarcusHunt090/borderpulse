@@ -218,10 +218,15 @@ def roc_auc(scores, y):
     return float((ranks[y == 1].sum() - n1 * (n1 + 1) / 2) / (n1 * n0))
 
 def pr_auc(scores, y):
+    """Step-integrated average precision; tied scores are one threshold."""
+    scores, y = np.asarray(scores), np.asarray(y)
     if y.sum() == 0: return float("nan")
-    idx = np.argsort(-np.array(scores))
-    ys = np.array(y)[idx]
+    idx = np.argsort(-scores)
+    ys = y[idx]
     tp = np.cumsum(ys); fp = np.cumsum(1 - ys)
+    # Do not assign arbitrary ranks inside a tie (e.g. a constant baseline).
+    thresholds = np.r_[np.flatnonzero(np.diff(scores[idx])), len(scores) - 1]
+    tp, fp = tp[thresholds], fp[thresholds]
     prec = tp / (tp + fp); rec = tp / ys.sum()
     # step integration over recall
     auc, prev_r = 0.0, 0.0
@@ -368,7 +373,7 @@ with open(os.path.join(OUT, "event_coverage.csv"), "w", newline="") as f:
 with open(os.path.join(OUT, "model_comparison.csv"), "w", newline="") as f:
     keys = ["model", "TP", "FP", "FN", "TN", "recall", "precision", "false_alarm_rate",
             "specificity", "NPV", "F1", "balanced_accuracy", "ROC_AUC", "PR_AUC", "Brier"]
-    w = csv.DictWriter(f, fieldnames=keys, extrasaction="ignore")
+    w = csv.DictWriter(f, fieldnames=keys, extrasaction="ignore", lineterminator="\n")
     w.writeheader()
     for r in cmp_rows + cmp_ex:
         w.writerow({k: (round(v, 3) if isinstance(v, float) else v) for k, v in r.items()})

@@ -71,6 +71,7 @@ BTS_PORTS = {"El Paso": "extra/ep_", "Ysleta": "extra/ysleta_"}
 
 def fetch_bts_crossings():
     import json as _json, urllib.parse
+    fetched = []
     for port, prefix in BTS_PORTS.items():
       for measure, suffix in BTS_MEASURES.items():
         rel = prefix + suffix
@@ -87,6 +88,8 @@ def fetch_bts_crossings():
             for d, v in rows:
                 f.write(f"{d},{v}\n")
         print(f"fetched BTS {port:8s} {measure:18s} -> {rel} ({len(rows)} rows, last {rows[-1][0][:7]})")
+        fetched.append(rel)
+    return fetched
 
 # ---- v3: Dallas Fed El Paso Business-Cycle Index (xlsx) -> data/extra/dallas_fed_bci.csv ----
 BCI_URL = "https://www.dallasfed.org/~/media/documents/research/econdata/coini/elpcoini.xlsx"
@@ -103,8 +106,10 @@ def fetch_dallas_fed_bci():
         p = os.path.join(DATA, "extra", "dallas_fed_bci.csv")
         df.rename(columns={dcol: "date", vcol: "value"}).to_csv(p, index=False)
         print(f"fetched Dallas Fed BCI -> extra/dallas_fed_bci.csv ({len(df)} rows) — VERIFY the column mapping once by eye")
+        return ["extra/dallas_fed_bci.csv"]
     except Exception as e:
         print(f"WARN: Dallas Fed BCI fetch failed ({e}); benchmark stays unavailable")
+        return []
 
 # NOTE (v3): Juárez IMMEX manufacturing employment (INEGI, monthly, 2007->) is the
 # planned successor to the discontinued FRED Mexico-manufacturing series; ingest is
@@ -112,10 +117,10 @@ def fetch_dallas_fed_bci():
 # NOTE (v4.1): a harmonized five-sector El Paso–Juárez employment series from the regional
 # border-economy research group is preferred over IMMEX if they share it or publish it.
 
-STEPS = ("pipeline.py", "backtest.py", "test_backtest.py", "benchmarks.py",
+STEPS = ("pipeline.py", "backtest.py", "test_backtest.py", "test_metrics.py", "benchmarks.py",
          "leadlag.py", "horizons.py", "inference.py", "border_test.py", "onset_eval.py",
          "vintage_audit.py", "test_vintage_audit.py",
-         "make_manifest.py", "make_technote.py", "build.py", "make_brief.py")
+         "make_technote.py", "make_brief.py", "build.py", "test_release.py")
 
 def main():
     ap = argparse.ArgumentParser()
@@ -123,6 +128,7 @@ def main():
     ap.add_argument("--skip-inference", action="store_true", help="skip inference.py (the slow bootstrap step) for a quick rebuild")
     args = ap.parse_args()
 
+    fetched = []
     if not args.no_fetch:
         for sid, (fname, start) in SERIES.items():
             rows = fetch(sid, start)
@@ -131,6 +137,7 @@ def main():
                 for d, v in rows:
                     f.write(f"{d},{v}\n")
             print(f"fetched {sid:16s} -> {fname}  ({len(rows)} rows, last {rows[-1][0][:7]})")
+            fetched.append(fname)
         for sid, rel in WEEKLY_EXTRA.items():
             try:
                 rows = fetch_weekly_monthly(sid)
@@ -141,13 +148,14 @@ def main():
                     for d, v in rows:
                         f.write(f"{d},{v}\n")
                 print(f"fetched {sid:16s} -> {rel}  (monthly avg, {len(rows)} rows)")
+                fetched.append(rel)
             except Exception as e:
                 print(f"WARN: {sid} failed ({e}); watch slot stays inactive")
         try:
-            fetch_bts_crossings()
+            fetched.extend(fetch_bts_crossings())
         except Exception as e:
             print(f"WARN: BTS crossings fetch failed ({e}); existing files kept")
-        fetch_dallas_fed_bci()
+        fetched.extend(fetch_dallas_fed_bci())
         # merge pre-2015 history (static, shipped with the repo) with fresh 2015+
         os.makedirs(os.path.join(DATA, "full"), exist_ok=True)
         for name in FULL_MERGE:
@@ -163,6 +171,9 @@ def main():
                     f.write(f"{d},{merged[d]}\n")
             print(f"merged full/{name}.csv ({len(merged)} rows)")
 
+    # Score and reports must read the provenance for this exact input snapshot.
+    manifest_args = [part for path in fetched for part in ("--fetched", path)]
+    subprocess.run([sys.executable, os.path.join(BASE, "make_manifest.py"), *manifest_args], cwd=BASE, check=True)
     for step in STEPS:
         if args.skip_inference and step == "inference.py":
             print("\n== inference.py == (skipped)"); continue

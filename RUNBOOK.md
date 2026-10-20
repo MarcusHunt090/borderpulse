@@ -11,7 +11,11 @@ python3 refresh.py          # downloads every FRED/BTS series, then reruns the w
 git add -A && git commit -m "Monthly refresh: data through YYYY-MM" && git push
 ```
 
-`refresh.py` runs, in order: pipeline → backtest → test_backtest (12 checks must PASS — if any fail, STOP and publish nothing) → benchmarks → leadlag → horizons → inference → border_test (reproduction check must stay ≤ 0.06 points) → onset_eval → vintage_audit → test_vintage_audit (6 checks must PASS) → make_manifest → make_technote → build → make_brief, then renders `technical_note.pdf` if Playwright is installed. Use `--no-fetch` to rerun on the data already in `data/`, and `--skip-inference` for a quick rebuild without the slow bootstrap step.
+`refresh.py` runs, in order: make_manifest → pipeline → backtest → test_backtest (12 checks must PASS — if any fail, STOP and publish nothing) → benchmarks → leadlag → horizons → inference → border_test (reproduction check must stay ≤ 0.06 points) → onset_eval → vintage_audit → test_vintage_audit (6 checks must PASS) → make_technote → make_brief → build → test_release, then renders `technical_note.pdf` if Playwright is installed. Use `--no-fetch` to rerun on the data already in `data/`, and `--skip-inference` for a quick rebuild without the slow bootstrap step.
+
+An offline rebuild preserves retrieval provenance for unchanged inputs. Successful downloads are recorded per file before scoring; a changed local CSV without a retrieval note is marked unknown. For individual verified manual downloads, use `python3 make_manifest.py --fetched ep_unrate.csv` (repeat `--fetched` for each actual download). The broader `--retrieved` and `--bts` notes apply to the respective provider's files; use them only after verifying the whole corresponding snapshot. Never label an offline rebuild as a new retrieval. The current monthly brief is generated before it is embedded in the dashboard.
+
+For changes to the data explorer, also run `node --test test_explorer.cjs` with Node.js 20+. The browser view should show missing calendar months as chart gaps and blank CSV values, including when the previous-year baseline is absent.
 
 Outputs that change on a refresh: `data/*.csv`, `data/MANIFEST.json`, `borderpulse_output.json`, `validation/*`, `technical_note.{md,html,pdf}`, `borderpulse_brief.md`, `artifact.html`, `borderpulse_dashboard.html`, `docs/index.html`. Commit all of them: the hashes in `MANIFEST.json` are the audit trail for the published numbers.
 

@@ -4,11 +4,12 @@ and retrieval provenance. Written to data/MANIFEST.json and embedded in the dash
 Data & Methods tab. Re-run after every refresh; the hash is what a replicator checks.
 
 Usage:
-    python3 make_manifest.py                       # retrieval note = today's date (FRED current vintage)
+    python3 make_manifest.py                       # preserve provenance for unchanged files
     python3 make_manifest.py --retrieved "2026-10-12 (FRED current vintage via .txt)"
     python3 make_manifest.py --bts "2026-10-12 (BTS Socrata API; annual totals cross-checked)"
 
-The retrieval notes are provenance text only; the hashes are the audit trail.
+Only a successful fetch or an explicit provenance note may advance a retrieval date.
+Changed local files without a provenance note are marked unknown.
 """
 import csv, hashlib, json, os, datetime, argparse
 
@@ -50,50 +51,78 @@ SOURCES = {
     "dallas_fed_bci": ("Dallas Fed El Paso BCI", "Federal Reserve Bank of Dallas", "El Paso Business-Cycle Index (benchmark only)"),
 }
 
-ap = argparse.ArgumentParser()
-ap.add_argument("--retrieved", default=None, help="provenance note for FRED-sourced files")
-ap.add_argument("--bts", default=None, help="provenance note for BTS crossings files")
-args = ap.parse_args()
-today = datetime.date.today().isoformat()
-FRED_NOTE = args.retrieved or f"{today} (FRED current vintage)"
-BTS_NOTE = args.bts or f"{today} (BTS Socrata API)"
-STATIC = {
-    "mex_manufacturing": "2026-08-25 (FRED; series discontinued)",
-    "pre2015": "2026-08-25 (FRED current vintage, static history 2000-2014)",
-}
-
 def sha256(p):
     h = hashlib.sha256()
     with open(p, "rb") as f:
         for chunk in iter(lambda: f.read(1 << 16), b""): h.update(chunk)
     return h.hexdigest()
 
-records = []
-for sub in ["", "pre2015", "full", "extra"]:
-    d = os.path.join(DATA, sub) if sub else DATA
-    if not os.path.isdir(d): continue
-    for fn in sorted(os.listdir(d)):
-        p = os.path.join(d, fn)
-        if not (os.path.isfile(p) and fn.endswith(".csv")) or "TEMPLATE" in fn: continue
-        rows = [r for r in csv.DictReader(open(p)) if r.get("value", "").strip() not in ("", ".")]
-        stem = fn[:-4]; rel = (sub + "/" if sub else "") + stem
-        src = SOURCES.get(stem, ("", "", ""))
-        if sub == "full":
-            retrieved = f"merge of pre2015/ (static) + 2015+ file retrieved {FRED_NOTE.split(' ')[0]}"
-        elif sub == "pre2015":
-            retrieved = STATIC["pre2015"]
-        elif stem in STATIC:
-            retrieved = STATIC[stem]
-        elif "crossings" in stem:
-            retrieved = BTS_NOTE
-        else:
-            retrieved = FRED_NOTE
-        records.append({"file": f"data/{rel}.csv", "sha256": sha256(p), "rows": len(rows),
-                        "first": rows[0]["date"] if rows else None, "last": rows[-1]["date"] if rows else None,
-                        "series_id": src[0], "source": src[1], "description": src[2], "retrieved": retrieved,
-                        "vintage": "latest available (revised) at retrieval; real-time vintages via vintage_audit.py"})
-manifest = {"generated": today, "n_files": len(records),
-            "note": "Hashes identify the exact inputs behind a published result. Any refresh changes them; compare against the CHANGELOG entry for the release you are replicating.",
+def build_manifest(data_dir=DATA, *, retrieved=None, bts=None, fetched=(), today=None):
+    today = today or datetime.date.today().isoformat()
+    prior_path = os.path.join(data_dir, "MANIFEST.json")
+    if os.path.exists(prior_path):
+        with open(prior_path) as f:
+            prior = {r["file"]: r for r in json.load(f).get("files", [])}
+    else:
+        prior = {}
+    records, by_file = [], {}
+    for sub in ["", "pre2015", "full", "extra"]:
+        directory = os.path.join(data_dir, sub)
+        if not os.path.isdir(directory):
+            continue
+        for fn in sorted(os.listdir(directory)):
+            path = os.path.join(directory, fn)
+            if not (os.path.isfile(path) and fn.endswith(".csv")) or "TEMPLATE" in fn:
+                continue
+            with open(path) as f:
+                rows = [r for r in csv.DictReader(f) if r.get("value", "").strip() not in ("", ".")]
+            rows.sort(key=lambda r: r["date"])
+            stem = fn[:-4]
+            relative = (sub + "/" if sub else "") + fn
+            file = "data/" + relative
+            digest = sha256(path)
+            old = prior.get(file, {})
+            source = SOURCES.get(stem, ("", "", ""))
+            explicit = bts if "crossings" in stem else retrieved
+            if sub == "full":
+                # A merged file has two source vintages, rather than a new retrieval.
+                parent = by_file.get("data/" + fn, {})
+                history = by_file.get("data/pre2015/" + fn, {})
+                if digest == old.get("sha256") and not explicit and fn not in fetched:
+                    note = old.get("retrieved", "unknown")
+                else:
+                    note = "merge of pre2015/ (" + history.get("retrieved", "unknown") + ") + 2015+ (" + parent.get("retrieved", "unknown") + ")"
+            elif explicit and sub != "pre2015":
+                note = explicit
+            elif relative in fetched:
+                provider = "BTS Socrata API" if "crossings" in stem else (source[1] or "source")
+                note = f"{today} ({provider}; successful fetch)"
+            elif digest == old.get("sha256"):
+                note = old.get("retrieved", "unknown")
+            else:
+                note = "unknown (local input changed; record retrieval provenance before publishing)"
+            record = {"file": file, "sha256": digest, "rows": len(rows),
+                      "first": rows[0]["date"] if rows else None, "last": rows[-1]["date"] if rows else None,
+                      "series_id": source[0], "source": source[1], "description": source[2], "retrieved": note,
+                      "vintage": "latest available (revised) at retrieval; real-time vintages via vintage_audit.py"}
+            records.append(record)
+            by_file[file] = record
+    return {"generated": today, "n_files": len(records),
+            "note": "Hashes identify the exact inputs behind a published result. Retrieval dates are preserved for unchanged files; an offline rebuild is not a data refresh.",
             "files": records}
-json.dump(manifest, open(OUT, "w"), indent=1)
-print(f"manifest: {len(records)} files -> data/MANIFEST.json")
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--retrieved", help="explicit provenance note for FRED-sourced files")
+    ap.add_argument("--bts", help="explicit provenance note for BTS crossings files")
+    ap.add_argument("--fetched", action="append", default=[], help="successfully fetched path, relative to data/")
+    args = ap.parse_args()
+    manifest = build_manifest(retrieved=args.retrieved, bts=args.bts, fetched=args.fetched)
+    with open(OUT, "w") as f:
+        json.dump(manifest, f, indent=1)
+    print(f"manifest: {manifest['n_files']} files -> data/MANIFEST.json")
+
+
+if __name__ == "__main__":
+    main()

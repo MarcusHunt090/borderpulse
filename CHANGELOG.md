@@ -2,6 +2,15 @@
 
 All model-relevant changes are versioned. Monthly data refreshes do not change the version unless code changed.
 
+## 6.2.0 — 2026-10-20
+New data-exploration features and refresh fixes; **score, model and data unchanged.**
+
+- Added an Indicators data explorer for the committed public series, with date ranges, full-history selection, reported values, year-over-year percent changes and differences in original units, source provenance, keyboard-readable charts, values tables and CSV exports. Canonical full histories replace duplicate short copies. All comparisons match calendar months; missing baselines and zero percent-change denominators remain missing.
+- Charts break their lines at missing observations and show those readings as missing in tooltips and tables.
+- Corrected PR-AUC (step-integrated average precision) to evaluate tied scores at one threshold. The old calculation arbitrarily ordered equal scores, so identical constant-baseline predictions could report different precision–recall areas across machines. Tests compare with [scikit-learn's average precision](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.average_precision_score.html) and permute tied rows. All dependent validation outputs are regenerated; this is an evaluation correction, with no change to score definitions, targets, alert episodes or ROC-AUC.
+- Offline rebuilds no longer advance retrieval dates. `make_manifest.py` preserves per-file provenance when bytes are unchanged, records successful fetches explicitly, and marks changed local inputs with unknown retrieval provenance. The manifest now precedes scoring, and the monthly brief precedes dashboard assembly.
+- Added JavaScript explorer tests and Python provenance/artifact regression checks to CI. Updated the dashboard's public-repository and reproduction notes.
+
 ## 6.1.1 — 2026-10-20
 Repository packaging; **score, model and data unchanged.** First public GitHub release of the full project. Added `README.md`, `.gitignore`, `LICENSE` (MIT for code), `CONTRIBUTING.md`, a GitHub Actions workflow that runs the leakage checks on every push, `tools/` (dashboard-recovery helpers), and `docs/index.html` so the dashboard can be served from GitHub Pages. `build.py` now also writes `docs/index.html`; `refresh.py` gained `--skip-inference` for quick rebuilds; `make_manifest.py` now records the Las Cruces and Ysleta series and takes `--retrieved` / `--bts` provenance notes instead of hard-coded dates; `requirements.txt` uses version floors (the release pins are kept in a comment).
 

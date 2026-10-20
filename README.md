@@ -8,13 +8,19 @@ BorderPulse compresses seven public monthly indicators for the El Paso metro are
 
 - **Dashboard:** [download the HTML snapshot](borderpulse_dashboard.html) and open it in a browser. The same page is in [`docs/index.html`](docs/index.html), ready for GitHub Pages.
 - **Technical note:** [`technical_note.md`](technical_note.md) — generated from the pipeline's own JSON, so it cannot disagree with the dashboard
-- **Current headline (model v6.1):** August 2026 · **40 / 100 · Near normal** · employment alert not active
+- **Current headline (v6.2):** August 2026 · **40 / 100 · Near normal** · employment alert not active
 
 > This is a transparent screening device for unusual local conditions — stronger at confirming stress than predicting it. It is not a forecast, not a probability, and not official statistics.
 
 ![BorderPulse dashboard showing the regional stress score, its drivers, and indicator comparisons](assets/dashboard-preview.jpg)
 
 *Dashboard snapshot for August 2026. The [technical note](technical_note.md) explains the data, methods, and validation.*
+
+## Explore the data
+
+Open **Indicators → Explore the data** in the dashboard. Select a public series, choose a month range, and view reported levels or calendar-aligned year-over-year changes. The chart includes a values table, and **Download selection (CSV)** exports the visible window with its source and retrieval provenance. Missing months remain missing; they are never filled with zero or joined across a chart gap. Full history is used where available, without duplicate copies of the same series.
+
+The explorer uses the committed snapshot and makes no live data requests. Watch and comparison series remain separate from the seven-indicator score.
 
 ## What the score is
 
@@ -52,9 +58,11 @@ python refresh.py --no-fetch       # rerun everything on the committed data
 `refresh.py --no-fetch` runs the whole chain in order:
 
 ```
+make_manifest.py   → data/MANIFEST.json           input hashes; preserves retrieval dates on offline rebuilds
 pipeline.py        → borderpulse_output.json      current score, layers, drivers, nowcast
 backtest.py        → validation/backtest_*        leakage-free back-test with publication lags
 test_backtest.py                                  12 checks (targets, no look-ahead, lags) — must all PASS
+test_metrics.py                                   tied-score invariance and average-precision reference checks
 benchmarks.py      → validation/benchmarks.json   episode-first metrics, local Sahm rule, Dallas Fed BCI (if present)
 leadlag.py         → validation/leadlag.json      border indicators vs El Paso jobs, leads 0–12
 horizons.py        → validation/horizons.json     3 / 6 / 12-month targets, band probabilities
@@ -63,13 +71,17 @@ border_test.py     → validation/border_test.json  pre-registered trade-vs-cros
 onset_eval.py      → validation/onset_eval.json   warning-before-onset vs detection-after-onset
 vintage_audit.py   → validation/vintage_audit.json real-time (ALFRED) audit — "pending" until vintages are exported
 test_vintage_audit.py                             6 checks on the audit framework — must all PASS
-make_manifest.py   → data/MANIFEST.json           SHA-256, span, source and retrieval date for every data file
 make_technote.py   → technical_note.{md,html}     the write-up, every number read from the JSON above
-build.py           → artifact.html, borderpulse_dashboard.html, docs/index.html
 make_brief.py      → borderpulse_brief.md         the one-page monthly brief
+build.py           → artifact.html, borderpulse_dashboard.html, docs/index.html (embeds the current brief)
+test_release.py                                  provenance and embedded-output regression checks
 ```
 
 Random seeds are fixed (42). Open `borderpulse_dashboard.html` in a browser to see the result.
+
+The current technical note is available as [`technical_note.md`](technical_note.md) and [`technical_note.html`](technical_note.html). The PDF is an archived release copy until the optional PDF renderer is run; use the Markdown or HTML note for the current validation metrics.
+
+For the explorer's calendar calculations, missing-value handling and CSV export, run `node --test test_explorer.cjs` (Node.js 20+). CI runs these alongside the Python checks.
 
 To pull fresh data, run `python3 refresh.py` on a machine with internet access (FRED and BTS downloads; the Dallas Fed benchmark additionally needs `pandas` + `openpyxl`). `RUNBOOK.md` has the full refresh procedure, including how it is done from inside a Claude session where direct downloads are blocked.
 
